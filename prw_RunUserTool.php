@@ -82,17 +82,10 @@ All Rights Reserved
 **************************************************************************************************/
 
 require_once("lib/nwc2clips.inc");
-require_once("lib/nwc2config.inc");
 require_once("lib/nwc2gui.inc");
-
 require_once("lib/nwc2usertools.inc");
 require_once("lib/nwc2parse.inc");
 require_once("lib/nwc2staffs.inc");
-
-// add to nwc2clips.inc?
-define("NWC2_STARTSONG","!NoteWorthyComposer");
-define("NWC2_ENDSONG","!NoteWorthyComposer-End");
-require_once("lib/obj_NWC2Song.inc");
 
 /*************************************************************************************************/
 

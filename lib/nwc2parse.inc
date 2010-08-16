@@ -19,13 +19,6 @@
 */
 
 require_once("lib/nwc2clips.inc");
-require_once("lib/obj_NWC2Song.inc");
-
-// temporary function, pending NWC2ClassifyOptTag enhancements for song header fields
-function remove_outer_quoting (&$value) {
-	if (preg_match('/^"(.*)"$/', $value, $m))
-		$value = $m[1];
-}
 
 // parse header items and staff data from a song's items
 class ParseSong {
@@ -56,16 +49,6 @@ class ParseSong {
 
 		while (($index < count($Song->Items)) && !$this->isHeaderItem($Song->Items[$index], false))
 			$this->StaffData[] = new ParseStaff($Song->Items, $index, $bodyobjects);
-
-		// adjust for NWC2ClassifyOptTag omissions
-
-		// SongInfo: Title, Author, Lyricist, Copyright1, Copyright2, Comments
-		foreach ($this->HeaderValues["SongInfo"] as &$value)
-			remove_outer_quoting($value);
-
-		// Font: Typeface
-		foreach ($this->HeaderValues["Font"] as &$value)
-			remove_outer_quoting($value["Typeface"]);
 	}
 
 	private function isHeaderItem ($item, $capture) {
@@ -155,12 +138,6 @@ class ParseStaff {
 
 		while (($index < count($items)) && !$this->isHeaderItem($items[$index], false, $bodyobjects))
 			$this->BodyItems[] = $items[$index++];
-
-		// adjust for NWC2ClassifyOptTag omissions
-
-		// AddStaff: Label, Group (Name already picked up!)
-		foreach ($this->HeaderValues["AddStaff"] as &$value)
-			remove_outer_quoting($value);
 	}
 
 	private function isHeaderItem ($item, $capture, $bodyobjects = false) {

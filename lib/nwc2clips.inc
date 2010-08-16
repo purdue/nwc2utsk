@@ -47,6 +47,9 @@ if (phpversion() < "5.2") trigger_error("The nwc2clips library requires PHP vers
 
 define("NWC2_STARTCLIP","!NoteWorthyComposerClip");
 define("NWC2_ENDCLIP","!NoteWorthyComposerClip-End");
+
+define("NWC2_STARTSONG","!NoteWorthyComposer");
+define("NWC2_ENDSONG","!NoteWorthyComposer-End");
 //
 // Return codes
 define("NWC2RC_SUCCESS",0); // Standard output is processed..contents in standard error is presented as a warning
@@ -73,9 +76,10 @@ function NWC2ClassifyOptTag($ObjType,$Tag)
   if (($Tag == "Bar") && ($ObjType == "Context")) return NWC2OPT_LIST;
 	if (in_array($Tag, array("Opts","Dur","Dur2","Endings"))) return NWC2OPT_ASSOCIATIVE;
 	if (($Tag == "Signature") && ($ObjType == "Key")) return NWC2OPT_ASSOCIATIVE;
-	if (in_array($Tag,array("Text","Name"))) return NWC2OPT_TEXT;
+	if (in_array($Tag,array("Text","Name","Label","Group","Typeface"))) return NWC2OPT_TEXT;
 	if ($Tag == "DynVel") return NWC2OPT_LIST;
 	if (in_array($ObjType,array("Chord","RestChord")) && in_array($Tag,array("Pos","Pos2"))) return NWC2OPT_LIST;
+	if ($ObjType == "SongInfo") return NWC2OPT_TEXT;
 	return NWC2OPT_RAW;
 }
 
@@ -83,4 +87,5 @@ include("obj_NWC2Clip.inc");
 include("obj_NWC2ClipItem.inc");
 include("obj_NWC2NotePitchPos.inc");
 include("obj_NWC2PlayContext.inc");
+include("obj_NWC2Song.inc");
 ?>
