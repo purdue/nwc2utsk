@@ -83,6 +83,49 @@ function NWC2ClassifyOptTag($ObjType,$Tag)
 	return NWC2OPT_RAW;
 }
 
+// ----------------------------------------------------------------
+//
+function NWC2QuickGetObjectType($itemtext)
+{
+	$tokens = explode("|", $itemtext, 3);
+	return $tokens[1];
+}
+
+// ----------------------------------------------------------------
+//
+define("NWC2OBJ_SONGHEADER",0);
+define("NWC2OBJ_STAFFHEADER",1);
+define("NWC2OBJ_STAFFBODY",2);
+//
+function NWC2ClassifyObjType($ObjType)
+{
+	switch ($ObjType) {
+		case "Locale":
+		case "Editor":
+		case "SongInfo":
+		case "PgSetup":
+		case "Font":
+		case "PgMargins":
+			return NWC2OBJ_SONGHEADER;
+
+		case "AddStaff":
+		case "StaffProperties":
+		case "StaffInstrument":
+		case "Lyrics":
+		case "Lyric1":
+		case "Lyric2":
+		case "Lyric3":
+		case "Lyric4":
+		case "Lyric5":
+		case "Lyric6":
+		case "Lyric7":
+		case "Lyric8":
+			return NWC2OBJ_STAFFHEADER;
+	}
+
+	return NWC2OBJ_STAFFBODY;
+}
+
 include("obj_NWC2Clip.inc");
 include("obj_NWC2ClipItem.inc");
 include("obj_NWC2NotePitchPos.inc");

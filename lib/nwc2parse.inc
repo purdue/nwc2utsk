@@ -52,30 +52,26 @@ class ParseSong {
 	}
 
 	private function isHeaderItem ($item, $capture) {
-		$o = new NWC2ClipItem($item);
-		$ObjType = $o->GetObjType();
+		$ObjType = NWC2QuickGetObjectType($item);
 
-		switch ($ObjType) {
-			case "Locale":
-			case "Editor":
-			case "SongInfo":
-			case "PgSetup":
-			case "PgMargins":
-				// we expect at most one of these per song
-				if ($capture) {
+		if (NWC2ClassifyObjType($ObjType) == NWC2OBJ_SONGHEADER) {
+			if ($capture) {
+				$o = new NWC2ClipItem($item);
+
+				if ($ObjType != "Font") {
+					// we expect at most one of these per song
 					$this->HeaderValues[$ObjType] = $o->Opts;
 				}
-				return true;
-
-			case "Font":
-				// we expect one or more of these per song
-				if ($capture) {
+				else {
+					// we expect one or more of these per song
 					if (!isset($this->HeaderValues[$ObjType]))
 						$this->HeaderValues[$ObjType] = array();
 
 					$this->HeaderValues[$ObjType][] = $o->Opts;
 				}
-				return true;
+			}
+
+			return true;
 		}
 
 		return false;
@@ -141,44 +137,34 @@ class ParseStaff {
 	}
 
 	private function isHeaderItem ($item, $capture, $bodyobjects = false) {
-		$o = new NWC2ClipItem($item);
-		$ObjType = $o->GetObjType();
+		$ObjType = NWC2QuickGetObjectType($item);
 
-		switch ($ObjType) {
-			case "AddStaff":
-			case "StaffInstrument":
-			case "Lyrics":
-			case "Lyric1":
-			case "Lyric2":
-			case "Lyric3":
-			case "Lyric4":
-			case "Lyric5":
-			case "Lyric6":
-			case "Lyric7":
-			case "Lyric8":
-				// we expect at most one of these per staff
-				if ($capture) {
+		if (NWC2ClassifyObjType($ObjType) == NWC2OBJ_STAFFHEADER) {
+			if ($capture) {
+				$o = new NWC2ClipItem($item);
+
+				if ($ObjType != "StaffProperties") {
+					// we expect at most one of these per staff
 					// handles empty staff followed by another staff
 					if (isset($this->HeaderValues[$ObjType]))
 						return false;
 
 					$this->HeaderValues[$ObjType] = $o->Opts;
 				}
-				return true;
-
-			case "StaffProperties":
-				// we expect one or more of these per staff
-				if ($capture) {
+				else {
+					// we expect one or more of these per staff
 					if (!isset($this->HeaderValues[$ObjType]))
 						$this->HeaderValues[$ObjType] = array();
 
 					$this->HeaderValues[$ObjType][] = $o->Opts;
 				}
-				return true;
+			}
+
+			return true;
 		}
 
 		if ($bodyobjects)
-			$this->BodyObjects[] = $o;
+			$this->BodyObjects[] = new NWC2ClipItem($item);
 
 		return false;
 	}
