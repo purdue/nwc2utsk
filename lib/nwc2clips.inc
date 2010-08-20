@@ -48,8 +48,8 @@ if (phpversion() < "5.2") trigger_error("The nwc2clips library requires PHP vers
 define("NWC2_STARTCLIP","!NoteWorthyComposerClip");
 define("NWC2_ENDCLIP","!NoteWorthyComposerClip-End");
 
-define("NWC2_STARTSONG","!NoteWorthyComposer");
-define("NWC2_ENDSONG","!NoteWorthyComposer-End");
+define("NWC2_STARTFILETXT","!NoteWorthyComposer");
+define("NWC2_ENDFILETXT","!NoteWorthyComposer-End");
 //
 // Return codes
 define("NWC2RC_SUCCESS",0); // Standard output is processed..contents in standard error is presented as a warning

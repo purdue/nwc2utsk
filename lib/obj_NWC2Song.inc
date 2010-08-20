@@ -32,25 +32,25 @@ function NWC2Song($src='php://stdin')
 
 	$hdr = trim(array_shift($this->Items));
 
-	if (preg_match('/^'.NWC2_STARTSONG.'\(([0-9]+)\.([0-9]+)/',$hdr,$m)) {
+	if (preg_match('/^'.NWC2_STARTFILETXT.'\(([0-9]+)\.([0-9]+)/',$hdr,$m)) {
 		$this->Version = "$m[1].$m[2]";
 		}
 	else trigger_error("Unrecognized notation song format",E_USER_ERROR);
 	//
 	$ftr = false;
-	while (($ftr != NWC2_ENDSONG) && (count($this->Items) > 0)) $ftr = trim(array_pop($this->Items));
+	while (($ftr != NWC2_ENDFILETXT) && (count($this->Items) > 0)) $ftr = trim(array_pop($this->Items));
 	//
-	if ($ftr != NWC2_ENDSONG) trigger_error("Could not find song ending tag",E_USER_ERROR);
+	if ($ftr != NWC2_ENDFILETXT) trigger_error("Could not find song ending tag",E_USER_ERROR);
 }
 
 function GetSongHeader()
 { 
-	return NWC2_STARTSONG."(".$this->Version.")";
+	return NWC2_STARTFILETXT."(".$this->Version.")";
 }
 
 function GetSongFooter()
 { 
-	return NWC2_ENDSONG;
+	return NWC2_ENDFILETXT;
 }
 };
 
