@@ -95,6 +95,7 @@ function NWC2QuickGetObjectType($itemtext)
 //
 define("NWC2OBJTYP_FILEPROPERTY",3);
 define("NWC2OBJTYP_STAFFPROPERTY",4);
+define("NWC2OBJTYP_STAFFLYRIC",5);
 define("NWC2OBJTYP_STAFFNOTATION",6);
 //
 function NWC2ClassifyObjType($ObjType)
@@ -111,6 +112,8 @@ function NWC2ClassifyObjType($ObjType)
 		case "AddStaff":
 		case "StaffProperties":
 		case "StaffInstrument":
+			return NWC2OBJTYP_STAFFPROPERTY; 
+
 		case "Lyrics":
 		case "Lyric1":
 		case "Lyric2":
@@ -120,7 +123,7 @@ function NWC2ClassifyObjType($ObjType)
 		case "Lyric6":
 		case "Lyric7":
 		case "Lyric8":
-			return NWC2OBJTYP_STAFFPROPERTY;
+			return NWC2OBJTYP_STAFFLYRIC;
 	}
 
 	return NWC2OBJTYP_STAFFNOTATION;

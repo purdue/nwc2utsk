@@ -139,7 +139,9 @@ class ParseStaff {
 	private function isHeaderItem ($item, $capture) {
 		$ObjType = NWC2QuickGetObjectType($item);
 
-		if (NWC2ClassifyObjType($ObjType) == NWC2OBJTYP_STAFFPROPERTY) {
+		$ObjTypeClass = NWC2ClassifyObjType($ObjType);
+		if (($ObjTypeClass == NWC2OBJTYP_STAFFPROPERTY) ||
+		    ($ObjTypeClass == NWC2OBJTYP_STAFFLYRIC)) {
 			if ($capture) {
 				$o = new NWC2ClipItem($item);
 
