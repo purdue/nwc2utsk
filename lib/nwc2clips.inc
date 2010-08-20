@@ -93,9 +93,9 @@ function NWC2QuickGetObjectType($itemtext)
 
 // ----------------------------------------------------------------
 //
-define("NWC2OBJ_SONGHEADER",0);
-define("NWC2OBJ_STAFFHEADER",1);
-define("NWC2OBJ_STAFFBODY",2);
+define("NWC2OBJTYP_FILEPROPERTY",3);
+define("NWC2OBJTYP_STAFFPROPERTY",4);
+define("NWC2OBJTYP_STAFFNOTATION",6);
 //
 function NWC2ClassifyObjType($ObjType)
 {
@@ -106,7 +106,7 @@ function NWC2ClassifyObjType($ObjType)
 		case "PgSetup":
 		case "Font":
 		case "PgMargins":
-			return NWC2OBJ_SONGHEADER;
+			return NWC2OBJTYP_FILEPROPERTY;
 
 		case "AddStaff":
 		case "StaffProperties":
@@ -120,10 +120,10 @@ function NWC2ClassifyObjType($ObjType)
 		case "Lyric6":
 		case "Lyric7":
 		case "Lyric8":
-			return NWC2OBJ_STAFFHEADER;
+			return NWC2OBJTYP_STAFFPROPERTY;
 	}
 
-	return NWC2OBJ_STAFFBODY;
+	return NWC2OBJTYP_STAFFNOTATION;
 }
 
 include("obj_NWC2Clip.inc");

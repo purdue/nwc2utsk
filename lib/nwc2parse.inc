@@ -54,7 +54,7 @@ class ParseSong {
 	private function isHeaderItem ($item, $capture) {
 		$ObjType = NWC2QuickGetObjectType($item);
 
-		if (NWC2ClassifyObjType($ObjType) == NWC2OBJ_SONGHEADER) {
+		if (NWC2ClassifyObjType($ObjType) == NWC2OBJTYP_FILEPROPERTY) {
 			if ($capture) {
 				$o = new NWC2ClipItem($item);
 
@@ -139,7 +139,7 @@ class ParseStaff {
 	private function isHeaderItem ($item, $capture) {
 		$ObjType = NWC2QuickGetObjectType($item);
 
-		if (NWC2ClassifyObjType($ObjType) == NWC2OBJ_STAFFHEADER) {
+		if (NWC2ClassifyObjType($ObjType) == NWC2OBJTYP_STAFFPROPERTY) {
 			if ($capture) {
 				$o = new NWC2ClipItem($item);
 
