@@ -22,8 +22,8 @@ function NWC2Song($src='php://stdin')
 	if (!is_array($this->Items))
 		trigger_error("Song text from NoteWorthy Composer 2 is required as input to the NWC2Song object",E_USER_ERROR);
 
-	while ($this->Items && preg_match('/^#\/(.*)/', $this->Items[0], $m)) {
-		$this->Comments[] = $m[1];
+	while ($this->Items && (NWC2ClassifyLine($this->Items[0]) == NWC2OBJTYP_COMMENT)) {
+		$this->Comments[] = substr($this->Items[0],1);
 		array_shift($this->Items);
 		}
 
