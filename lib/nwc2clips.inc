@@ -59,7 +59,7 @@ define("NWC2RC_REPORT",99); // Standard output is shown to the user
 // Cmd flags set in the User Tool command line. Defiend here mostly for documentation purposes.
 define("UTOOL_SEND_CLIPTXT",0);    // Selected notation clip text sent in STDIN (the default)
 define("UTOOL_SEND_FILETXT",1);    // File nwctxt sent in STDIN
-define("UTOOL_ACCEPTS_GZIP",2);    // The nwctxt/clip text in STDIN will be gzip defalated
+define("UTOOL_ACCEPTS_GZIP",2);    // The nwctxt/clip text in STDIN can be (optionally) gzip defalated
 define("UTOOL_RETURNS_FILETXT",4); // Script sends a nwctxt file to STDOUT that replaces current file
 define("UTOOL_LONG_TASK",8);       // Task may require a long time to finish
 define("UTOOL_USES_PROMPTS",16);   // Prompts the user for input from within the script
@@ -73,13 +73,13 @@ define("NWC2OPT_ASSOCIATIVE",3);
 //
 function NWC2ClassifyOptTag($ObjType,$Tag)
 {
+	if ($ObjType == "SongInfo") return NWC2OPT_TEXT;
   if (($Tag == "Bar") && ($ObjType == "Context")) return NWC2OPT_LIST;
 	if (in_array($Tag, array("Opts","Dur","Dur2","Endings"))) return NWC2OPT_ASSOCIATIVE;
 	if (($Tag == "Signature") && ($ObjType == "Key")) return NWC2OPT_ASSOCIATIVE;
 	if (in_array($Tag,array("Text","Name","Label","Group","Typeface"))) return NWC2OPT_TEXT;
 	if ($Tag == "DynVel") return NWC2OPT_LIST;
 	if (in_array($ObjType,array("Chord","RestChord")) && in_array($Tag,array("Pos","Pos2"))) return NWC2OPT_LIST;
-	if ($ObjType == "SongInfo") return NWC2OPT_TEXT;
 	return NWC2OPT_RAW;
 }
 
