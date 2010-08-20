@@ -93,6 +93,7 @@ function NWC2QuickGetObjectType($itemtext)
 
 // ----------------------------------------------------------------
 //
+define("NWC2OBJTYP_ERROR",0);
 define("NWC2OBJTYP_FILEPROPERTY",3);
 define("NWC2OBJTYP_STAFFPROPERTY",4);
 define("NWC2OBJTYP_STAFFLYRIC",5);
@@ -129,6 +130,15 @@ function NWC2ClassifyObjType($ObjType)
 	return NWC2OBJTYP_STAFFNOTATION;
 }
 
+function NWC2ClassifyLine($line)
+{
+	if (preg_match('/^\|([A-Za-z0-9]+)/',$line,$m)) return NWC2ClassifyObjType($m[1]);
+
+	return NWC2OBJTYP_ERROR;
+}
+
+// ----------------------------------------------------------------
+//
 include("obj_NWC2Clip.inc");
 include("obj_NWC2ClipItem.inc");
 include("obj_NWC2NotePitchPos.inc");
