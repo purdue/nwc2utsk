@@ -33,7 +33,7 @@ class ParseSong {
 
 	var $StaffData = array();
 
-	function ParseSong ($src = 'php://stdin', $bodyobjects = false) {
+	function ParseSong ($src = 'php://stdin') {
 		$Song = new NWC2Song($src);
 
 		$this->SongHeader = $Song->GetSongHeader();
@@ -48,7 +48,7 @@ class ParseSong {
 			$this->HeaderItems[] = $Song->Items[$index++];
 
 		while (($index < count($Song->Items)) && !$this->isHeaderItem($Song->Items[$index], false))
-			$this->StaffData[] = new ParseStaff($Song->Items, $index, $bodyobjects);
+			$this->StaffData[] = new ParseStaff($Song->Items, $index);
 	}
 
 	private function isHeaderItem ($item, $capture) {
@@ -128,15 +128,15 @@ class ParseStaff {
 	private $MappingsAdded = false;
 	private $ImplodesAdded = false;
 
-	function ParseStaff ($items, &$index, $bodyobjects = false) {
+	function ParseStaff ($items, &$index) {
 		while (($index < count($items)) && $this->isHeaderItem($items[$index], true))
 			$this->HeaderItems[] = $items[$index++];
 
-		while (($index < count($items)) && !$this->isHeaderItem($items[$index], false, $bodyobjects))
+		while (($index < count($items)) && !$this->isHeaderItem($items[$index], false))
 			$this->BodyItems[] = $items[$index++];
 	}
 
-	private function isHeaderItem ($item, $capture, $bodyobjects = false) {
+	private function isHeaderItem ($item, $capture) {
 		$ObjType = NWC2QuickGetObjectType($item);
 
 		if (NWC2ClassifyObjType($ObjType) == NWC2OBJ_STAFFHEADER) {
@@ -163,10 +163,14 @@ class ParseStaff {
 			return true;
 		}
 
-		if ($bodyobjects)
-			$this->BodyObjects[] = new NWC2ClipItem($item);
-
 		return false;
+	}
+
+	function ConstructBodyObjects () {
+		$this->BodyObjects = array();
+
+		foreach ($this->BodyItems as $BodyItem)
+			$this->BodyObjects[] = new NWC2ClipItem($BodyItem);
 	}
 
 	private function BuildBodyObjectDefaults (&$defaults) {
