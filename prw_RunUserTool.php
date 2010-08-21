@@ -83,9 +83,9 @@ All Rights Reserved
 
 require_once("lib/nwc2clips.inc");
 require_once("lib/nwc2gui.inc");
-require_once("lib/nwc2usertools.inc");
-require_once("lib/nwc2parse.inc");
-require_once("lib/nwc2staffs.inc");
+require_once("usr/nwc2usertools.inc");
+require_once("usr/nwc2parse.inc");
+require_once("usr/nwc2staffs.inc");
 
 /*************************************************************************************************/
 
