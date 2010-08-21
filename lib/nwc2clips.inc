@@ -91,18 +91,23 @@ function NWC2ClassifyObjType($ObjType)
 	return NWC2OBJTYP_STAFFNOTATION;
 }
 
+define("NWCTXTLTYP_ERROR",0);
+define("NWCTXTLTYP_FORMATHEADER",1);
+define("NWCTXTLTYP_COMMENT",2);
+define("NWCTXTLTYP_OBJECT",3);
+//
 function NWC2ClassifyLine($line)
 {
 	switch (substr($line,0,1)) {
-		case '!': return NWC2OBJTYP_FORMATHEADER;
-		case '#': return NWC2OBJTYP_COMMENT;
-		case '|': return NWC2OBJTYP_OBJECT;
+		case '!': return NWCTXTLTYP_FORMATHEADER;
+		case '#': return NWCTXTLTYP_COMMENT;
+		case '|': return NWCTXTLTYP_OBJECT;
 	}
 
 	// Treat empty lines as comments
-	if (!trim($line)) return NWC2OBJTYP_COMMENT;
+	if (!trim($line)) return NWCTXTLTYP_COMMENT;
 
-	return NWC2OBJTYP_ERROR;
+	return NWCTXTLTYP_ERROR;
 }
 
 // ----------------------------------------------------------------
