@@ -75,13 +75,10 @@ function NWC2GetObjType($line)
 // ----------------------------------------------------------------
 //
 define("NWC2OBJTYP_ERROR",0);
-define("NWC2OBJTYP_FORMATHEADER",1);
-define("NWC2OBJTYP_COMMENT",2);
-define("NWC2OBJTYP_FILEPROPERTY",3);
-define("NWC2OBJTYP_STAFFPROPERTY",4);
-define("NWC2OBJTYP_STAFFLYRIC",5);
-define("NWC2OBJTYP_STAFFNOTATION",6);
-define("NWC2OBJTYP_OBJECT",7);
+define("NWC2OBJTYP_FILEPROPERTY",1);
+define("NWC2OBJTYP_STAFFPROPERTY",2);
+define("NWC2OBJTYP_STAFFLYRIC",3);
+define("NWC2OBJTYP_STAFFNOTATION",4);
 //
 function NWC2ClassifyObjType($ObjType)
 {
