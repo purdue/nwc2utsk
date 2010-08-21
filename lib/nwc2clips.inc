@@ -66,25 +66,6 @@ define("UTOOL_USES_PROMPTS",16);   // Prompts the user for input from within the
 
 // ----------------------------------------------------------------
 //
-define("NWC2OPT_RAW",0);
-define("NWC2OPT_TEXT",1);
-define("NWC2OPT_LIST",2);
-define("NWC2OPT_ASSOCIATIVE",3);
-//
-function NWC2ClassifyOptTag($ObjType,$Tag)
-{
-	if ($ObjType == "SongInfo") return NWC2OPT_TEXT;
-  if (($Tag == "Bar") && ($ObjType == "Context")) return NWC2OPT_LIST;
-	if (in_array($Tag, array("Opts","Dur","Dur2","Endings"))) return NWC2OPT_ASSOCIATIVE;
-	if (($Tag == "Signature") && ($ObjType == "Key")) return NWC2OPT_ASSOCIATIVE;
-	if (in_array($Tag,array("Text","Name","Label","Group","Typeface"))) return NWC2OPT_TEXT;
-	if ($Tag == "DynVel") return NWC2OPT_LIST;
-	if (in_array($ObjType,array("Chord","RestChord")) && in_array($Tag,array("Pos","Pos2"))) return NWC2OPT_LIST;
-	return NWC2OPT_RAW;
-}
-
-// ----------------------------------------------------------------
-//
 function NWC2QuickGetObjectType($itemtext)
 {
 	$tokens = explode("|", $itemtext, 3);
@@ -122,6 +103,25 @@ function NWC2ClassifyLine($line)
 	if (!trim($line)) return NWC2OBJTYP_COMMENT;
 
 	return NWC2OBJTYP_ERROR;
+}
+
+// ----------------------------------------------------------------
+//
+define("NWC2OPT_RAW",0);
+define("NWC2OPT_TEXT",1);
+define("NWC2OPT_LIST",2);
+define("NWC2OPT_ASSOCIATIVE",3);
+//
+function NWC2ClassifyOptTag($ObjType,$Tag)
+{
+	if ($ObjType == "SongInfo") return NWC2OPT_TEXT;
+  if (($Tag == "Bar") && ($ObjType == "Context")) return NWC2OPT_LIST;
+	if (in_array($Tag, array("Opts","Dur","Dur2","Endings"))) return NWC2OPT_ASSOCIATIVE;
+	if (($Tag == "Signature") && ($ObjType == "Key")) return NWC2OPT_ASSOCIATIVE;
+	if (in_array($Tag,array("Text","Name","Label","Group","Typeface"))) return NWC2OPT_TEXT;
+	if ($Tag == "DynVel") return NWC2OPT_LIST;
+	if (in_array($ObjType,array("Chord","RestChord")) && in_array($Tag,array("Pos","Pos2"))) return NWC2OPT_LIST;
+	return NWC2OPT_RAW;
 }
 
 // ----------------------------------------------------------------
