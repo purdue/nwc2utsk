@@ -66,10 +66,10 @@ define("UTOOL_USES_PROMPTS",16);   // Prompts the user for input from within the
 
 // ----------------------------------------------------------------
 //
-function NWC2QuickGetObjectType($itemtext)
+function NWC2GetObjType($line)
 {
-	$tokens = explode("|", $itemtext, 3);
-	return $tokens[1];
+	if (preg_match('/^\|([A-Za-z0-9]+)/',$line,$m)) return $m[1];
+	return '';
 }
 
 // ----------------------------------------------------------------
