@@ -81,6 +81,7 @@ define("NWC2OBJTYP_FILEPROPERTY",3);
 define("NWC2OBJTYP_STAFFPROPERTY",4);
 define("NWC2OBJTYP_STAFFLYRIC",5);
 define("NWC2OBJTYP_STAFFNOTATION",6);
+define("NWC2OBJTYP_OBJECT",7);
 //
 function NWC2ClassifyObjType($ObjType)
 {
@@ -92,11 +93,10 @@ function NWC2ClassifyObjType($ObjType)
 
 function NWC2ClassifyLine($line)
 {
-	if (preg_match('/^\|([A-Za-z0-9]+)/',$line,$m)) return NWC2ClassifyObjType($m[1]);
-
 	switch (substr($line,0,1)) {
 		case '!': return NWC2OBJTYP_FORMATHEADER;
 		case '#': return NWC2OBJTYP_COMMENT;
+		case '|': return NWC2OBJTYP_OBJECT;
 	}
 
 	// Treat empty lines as comments
