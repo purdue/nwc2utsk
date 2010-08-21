@@ -168,11 +168,24 @@ class ParseStaff {
 		return false;
 	}
 
-	function ConstructBodyObjects () {
+	function ConstructBodyObjects ($force = false) {
+		if ($this->BodyObjects && !$force)
+			return;
+
+		$defaults = $this->DefaultsAdded;
+		$mappings = $this->MappingsAdded;
+		$implodes = $this->ImplodesAdded;
+
 		$this->BodyObjects = array();
+
+		$this->DefaultsAdded = false;
+		$this->MappingsAdded = false;
+		$this->ImplodesAdded = false;
 
 		foreach ($this->BodyItems as $BodyItem)
 			$this->BodyObjects[] = new NWC2ClipItem($BodyItem);
+
+		$this->AddBodyObjectFixups($defaults, $mappings, $implodes);
 	}
 
 	private function BuildBodyObjectDefaults (&$defaults) {
@@ -428,6 +441,9 @@ class ParseStaff {
 	}
 
 	function AddBodyObjectFixups ($defaults = true, $mappings = true, $implodes = true) {
+		if (!$this->BodyObjects)
+			return;
+
 		if ($defaults && !$this->DefaultsAdded) {
 			foreach ($this->BodyObjects as &$o)
 				$this->BodyObjectDefaults($o, true);
@@ -451,6 +467,9 @@ class ParseStaff {
 	}
 
 	function SubBodyObjectFixups ($defaults = true, $mappings = true, $implodes = true) {
+		if (!$this->BodyObjects)
+			return;
+
 		if ($implodes && $this->ImplodesAdded) {
 			foreach ($this->BodyObjects as &$o)
 				$this->BodyObjectDefaults($o, false);
@@ -474,6 +493,9 @@ class ParseStaff {
 	}
 
 	function ReconstructBodyItems () {
+		if (!$this->BodyObjects)
+			return;
+
 		$this->BodyItems = array();
 
 		if ($this->DefaultsAdded || $this->MappingsAdded || $this->ImplodesAdded) {
