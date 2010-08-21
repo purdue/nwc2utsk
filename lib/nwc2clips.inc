@@ -9,17 +9,6 @@ http://my.noteworthysoftware.com/?board=7.0
 
 Copyright © 2010 by NoteWorthy Software, Inc.
 All Rights Reserved
-
-HISTORY:
-================================================================================
-[2010-07-13] Added NWC2ClipItemWithPitchPos class
-[2010-07-01] Changes for NWC 2.5 support
-[2010-02-28] Support new clip context and notehead color features in NWC 2.1,
-             migrate to php5, add note name script, support for web scripts, 
-             and NWC2PlayContext class
-[2006-09-05] Library classes moved into own files
-[2004-12-01] Enhancements to allow for empty clips
-[2004-10-27] Initial release
 *******************************************************************************/
 
 if (!function_exists('nw_aafield')) {
@@ -77,7 +66,7 @@ function NWC2ClassifyLine($line)
 		case '!': return NWCTXTLTYP_FORMATHEADER;
 		case '#': return NWCTXTLTYP_COMMENT;
 		case '|': return NWCTXTLTYP_OBJECT;
-	}
+		}
 
 	// Treat empty lines as comments
 	if (!trim($line)) return NWCTXTLTYP_COMMENT;
@@ -89,7 +78,7 @@ function NWC2ClassifyLine($line)
 //
 function NWC2GetObjType($line)
 {
-	if (preg_match('/^\|([A-Za-z0-9]+)/',$line,$m)) return $m[1];
+	if (preg_match('/^\\|([A-Za-z0-9]+)/',$line,$m)) return $m[1];
 	return '';
 }
 
@@ -103,7 +92,7 @@ function NWC2ClassifyObjType($ObjType)
 {
 	if (!$ObjType) return NWC2OBJTYP_ERROR;
 	if (in_array($ObjType,array("Locale","Editor","SongInfo","PgSetup","Font","PgMargins"))) return NWC2OBJTYP_FILEPROPERTY;
-	if (in_array($ObjType,array("AddStaff","StaffProperties","StaffInstrument"))) return NWC2OBJTYP_STAFFPROPERTY; 
+	if (in_array($ObjType,array("AddStaff","StaffProperties","StaffInstrument"))) return NWC2OBJTYP_STAFFPROPERTY;
 	if (preg_match('/^Lyric[s1-8]/',$ObjType)) return NWC2OBJTYP_STAFFLYRIC;
 	return NWC2OBJTYP_STAFFNOTATION;
 }
