@@ -566,8 +566,8 @@ class mainApp extends wxApp
 		$process = proc_open($command, $redirs, $sink, null, null, array("bypass_shell" => true));
 		$exitcode = proc_close($process);
 
-		$stdout = preg_replace("/\r*\n/", PHP_EOL, gzfile($tempstdout));
-		$stderr = preg_replace("/\r*\n/", PHP_EOL, gzfile($tempstderr));
+		$stdout = gzfile($tempstdout);
+		$stderr = gzfile($tempstderr);
 
 		unlink($tempstdin);
 		unlink($tempstdout);
