@@ -620,12 +620,12 @@ class resultsDialog extends wxDialog
 
 /*************************************************************************************************/
 
-class mainApp extends wxApp
+class mainFrame extends wxFrame
 {
 	private $usertools = array();
 	private $SongData = null;
 
-	function OnInit () {
+	function __construct () {
 		global $argv;
 
 		array_shift($argv);
@@ -838,6 +838,14 @@ class mainApp extends wxApp
 }
 
 /*************************************************************************************************/
+
+class mainApp extends wxApp
+{
+	function OnInit () {
+		$mf = new mainFrame();
+		$mf->Show();
+	}
+}
 
 $ma = new mainApp();
 wxApp::SetInstance($ma);
