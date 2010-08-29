@@ -36,7 +36,7 @@ if (phpversion() < "5.2") trigger_error("The nwc2clips library requires PHP vers
 
 define("NWC2_STARTCLIP","!NoteWorthyComposerClip");
 define("NWC2_ENDCLIP","!NoteWorthyComposerClip-End");
-
+//
 define("NWC2_STARTFILETXT","!NoteWorthyComposer");
 define("NWC2_ENDFILETXT","!NoteWorthyComposer-End");
 //
