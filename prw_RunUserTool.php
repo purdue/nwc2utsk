@@ -206,7 +206,7 @@ class wizardPanel extends wxPanel
 
 	final protected function newRow () {
 		$rowSizer = new wxBoxSizer(wxHORIZONTAL);
-		$this->panelSizer->Add($rowSizer, 1, wxGROW);
+		$this->panelSizer->Add($rowSizer, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 10);
 		return $rowSizer;
 	}
 
@@ -266,33 +266,29 @@ class staffPanel extends wizardPanel
 		// groups listbox
 
 		$colSizer = new wxBoxSizer(wxVERTICAL);
-		$rowSizer->Add($colSizer, 4, wxLEFT, 10);
+		$rowSizer->Add($colSizer, 3);
 
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Groups:");
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-					 nwc2gui_wxArray($this->grouplist), wxLB_MULTIPLE|wxLB_HSCROLL);
+					 nwc2gui_wxArray($this->grouplist), wxLB_MULTIPLE);
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
 		$this->groupobject = $listbox;
 
 		//-------------------------------------------------
-
-		$rowSizer->AddStretchSpacer(1);
-
-		//-------------------------------------------------
 		// staffs listbox
 
 		$colSizer = new wxBoxSizer(wxVERTICAL);
-		$rowSizer->Add($colSizer, 9, wxRIGHT, 10);
+		$rowSizer->Add($colSizer, 5, wxLEFT, 10);
 
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Staffs:");
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-					 nwc2gui_wxArray($this->stafflist), wxLB_MULTIPLE|wxLB_HSCROLL);
+					 nwc2gui_wxArray($this->stafflist), wxLB_MULTIPLE);
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectStaff"));
@@ -422,39 +418,35 @@ class toolPanel extends wizardPanel
 		// groups listbox
 
 		$colSizer = new wxBoxSizer(wxVERTICAL);
-		$rowSizer->Add($colSizer, 3, wxLEFT, 10);
+		$rowSizer->Add($colSizer, 3);
 
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Groups:");
 		$colSizer->Add($statictext);
 
-		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-						nwc2gui_wxArray($this->grouplist), wxLB_SINGLE|wxLB_HSCROLL);
+		$listbox = new wxListBox($this, $this->new_wxID());
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
 		$this->groupobject = $listbox;
 
 		//-------------------------------------------------
-
-		$rowSizer->AddStretchSpacer(1);
-
-		//-------------------------------------------------
 		// commands listbox
 
 		$colSizer = new wxBoxSizer(wxVERTICAL);
-		$rowSizer->Add($colSizer, 5, wxRIGHT, 10);
+		$rowSizer->Add($colSizer, 5, wxLEFT, 10);
 
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Commands:");
 		$colSizer->Add($statictext);
 
-		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-						nwc2gui_wxArray($this->toollist), wxLB_SINGLE|wxLB_HSCROLL);
+		$listbox = new wxListBox($this, $this->new_wxID());
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectTool"));
 		$this->toolobject = $listbox;
 
 		//--------------------------------------------------------------------------------------
+
+		$this->groupobject->Set($this->wxArrayString($this->grouplist, 20));
 
 		$this->doFit();
 
@@ -467,6 +459,19 @@ class toolPanel extends wizardPanel
 			if ($toolname)
 				$this->doSelectTool(array_search($toolname, $this->toollist));
 		}
+	}
+
+	function wxArrayString ($phpArrayString, $maxlen = -1) {
+		$wxArrayString = new wxArrayString();
+
+		foreach ($phpArrayString as $string) {
+			if (($maxlen >= 0) && (strlen($string) > $maxlen))
+				$string = substr($string, 0, $maxlen - 3)."...";
+
+			$wxArrayString->Add($string);
+		}
+
+		return $wxArrayString;
 	}
 
 	function isNextValid () {
@@ -483,7 +488,7 @@ class toolPanel extends wizardPanel
 		$groupname = $this->grouplist[$this->groupselected];
 
 		$this->toollist = array_keys($this->usertools[$groupname]);
-		$this->toolobject->Set(nwc2gui_wxArray($this->toollist));
+		$this->toolobject->Set($this->wxArrayString($this->toollist, 40));
 		$this->toolselected = null;
 
 		$this->doFit();
@@ -558,10 +563,10 @@ class parmPanel extends wizardPanel
 		$rowSizer = $this->newRow();
 
 		$col1Sizer = new wxBoxSizer(wxVERTICAL);
-		$rowSizer->Add($col1Sizer, 1, wxLEFT, 10);
+		$rowSizer->Add($col1Sizer);
 
 		$col2Sizer = new wxBoxSizer(wxVERTICAL);
-		$rowSizer->Add($col2Sizer, 1, wxRIGHT, 10);
+		$rowSizer->Add($col2Sizer, 0, wxLEFT, 10);
 
 		preg_match_all('/<PROMPT:([^>]*)>/', $this->command, $m);
 
@@ -667,22 +672,22 @@ class verifyPanel extends wizardPanel
 
 		$rowSizer = $this->newRow();
 
-		$statictext = new wxStaticText($this, $this->new_wxID(), "Command:");
-		$rowSizer->Add($statictext, 0, wxALL, 10);
+		$statictext = new wxStaticText($this, $this->new_wxID(), "Command:  ");
+		$rowSizer->Add($statictext);
 
 		// wbn: would rather not wrap on a space within quotes?
 		$statictext = new wxStaticText($this, $this->new_wxID(), strtr($fullcommand, " ", "\n"));
-		$rowSizer->Add($statictext, 0, wxALL, 10);
+		$rowSizer->Add($statictext);
 
 		//--------------------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
-		$statictext = new wxStaticText($this, $this->new_wxID(), "Staffs:");
-		$rowSizer->Add($statictext, 0, wxALL, 10);
+		$statictext = new wxStaticText($this, $this->new_wxID(), "Staffs:  ");
+		$rowSizer->Add($statictext);
 
 		$statictext = new wxStaticText($this, $this->new_wxID(), $this->implodewithwrap(", ", $staffnames, 60, ",\n"));
-		$rowSizer->Add($statictext, 0, wxALL, 10);
+		$rowSizer->Add($statictext);
 
 		//--------------------------------------------------------------------------------------
 
@@ -722,7 +727,7 @@ class resultsPanel extends wizardPanel
 	private $radiobuttonbaseid;
 	private $textDisp;
 
-	function __construct ($parent, $nextButton, $execResults) {
+	function __construct ($parent, $nextButton, $execResults, $panelHeight) {
 		parent::__construct($parent, $nextButton, self::prompt);
 
 		extract($execResults);
@@ -740,7 +745,7 @@ class resultsPanel extends wizardPanel
 		$rowSizer = $this->newRow();
 
 		$radioSizer = new wxStaticBoxSizer(wxHORIZONTAL, $this);
-		$rowSizer->Add($radioSizer, 0, wxLEFT, 10);
+		$rowSizer->Add($radioSizer);
 
 		$this->radiobuttonbaseid = $this->cur_wxID() + 1;
 
@@ -758,9 +763,9 @@ class resultsPanel extends wizardPanel
 
 		$rowSizer = $this->newRow();
 
-		$textDisp = new wxTextCtrl($this, $this->new_wxID(), "", wxDefaultPosition, wxDefaultSize,
+		$textDisp = new wxTextCtrl($this, $this->new_wxID(), "", wxDefaultPosition, new wxSize(-1, $panelHeight - 85),
 							wxTE_READONLY|wxTE_MULTILINE|wxTE_DONTWRAP);
-		$rowSizer->Add($textDisp, 1, wxGROW|wxALL, 10);
+		$rowSizer->Add($textDisp, 1);
 
 		$this->textDisp = $textDisp;
 
@@ -773,8 +778,6 @@ class resultsPanel extends wizardPanel
 
 	function displayChoice ($choice) {
 		$this->textDisp->SetValue(implode("", $this->text[$choice]));
-
-		$this->doFit();
 	}
 
 	function handleRadio ($event) {
@@ -816,7 +819,11 @@ class mainDialog extends wxDialog
 		parent::__construct(null, -1, "Run User Tool");
 
 		$bmpfile = __DIR__.DIRECTORY_SEPARATOR."prw_RunUserTool.bmp";
+		if (!file_exists($bmpfile))
+			$this->fail("File missing: $bmpfile");
+
 		$this->bitmap = new wxBitmap($bmpfile, wxBITMAP_TYPE_BMP);
+		$this->bitmapHeight = $this->bitmap->GetHeight();
 
 		$wxID = wxID_HIGHEST;
 
@@ -872,8 +879,9 @@ class mainDialog extends wxDialog
 		exit(NWC2RC_ERROR);
 	}
 
-	function setupCtrlPanel ($back, $next = "inactive", $cancel = "active", $status = "") {
-		$this->statusText->SetLabel(str_pad($status, 80));
+	function setupCtrlPanel ($back, $next = "inactive", $cancel = "active", $status = null) {
+		if ($status !== null)
+			$this->statusText->SetLabel(str_pad($status, 80));
 
 		$this->backButton->Show($back != "hidden");
 		$this->backButton->Enable($back == "active");
@@ -888,12 +896,12 @@ class mainDialog extends wxDialog
 	function setupPage ($page) {
 		switch ($page) {
 			case "editstaffsubset":
-				$this->setupCtrlPanel("hidden");
+				$this->setupCtrlPanel("hidden", "inactive", "active", "");
 				$this->currentPanel = new staffPanel($this->pagePanel, $this->nextButton, $this->SongData, $this->staffsubset);
 				break;
 
 			case "editusertool":
-				$this->setupCtrlPanel("active");
+				$this->setupCtrlPanel("active", "inactive", "active", "");
 				$this->currentPanel = new toolPanel($this->pagePanel, $this->nextButton, $this->usertools, $this->usertool);
 				break;
 
@@ -909,7 +917,7 @@ class mainDialog extends wxDialog
 
 			case "editresults":
 				$this->setupCtrlPanel("inactive");
-				$this->currentPanel = new resultsPanel($this->pagePanel, $this->nextButton, $this->execresults);
+				$this->currentPanel = new resultsPanel($this->pagePanel, $this->nextButton, $this->execresults, $this->bitmapHeight);
 				break;
 
 			default:
@@ -1025,7 +1033,7 @@ class mainDialog extends wxDialog
 			switch ($nextstate) {
 				case "getstaffsubset":
 					// get staff subset(s) from args if any
-					while ($argv && in_array(strtolower($argv[0]), $staffsubsets))
+					while ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
 
 					// ask for a staff subset, unless we have one from the args
@@ -1128,7 +1136,7 @@ class mainDialog extends wxDialog
 
 				case "getresultsdone":
 					// get staff subset(s) from args if any
-					while ($argv && in_array(strtolower($argv[0]), $staffsubsets))
+					while ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
 
 					// if any args left, do another user tool, else done
