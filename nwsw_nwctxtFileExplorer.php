@@ -166,7 +166,7 @@ class nwcut_MainWindow extends wxDialog
 
 	function doShowLineDesc($evt)
 	{
-		$this->ShowDesc($evt->GetSelection());
+		$this->ShowDesc($this->ctrl_LineList->GetSelection());
 	}
 
 	function ShowDesc($linenum)
