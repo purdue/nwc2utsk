@@ -132,5 +132,4 @@ include("obj_NWC2Clip.inc");
 include("obj_NWC2ClipItem.inc");
 include("obj_NWC2NotePitchPos.inc");
 include("obj_NWC2PlayContext.inc");
-include("obj_NWC2Song.inc");
 ?>

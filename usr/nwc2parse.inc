@@ -97,6 +97,28 @@ class ParseSong {
 		return $cliptext;
 	}
 
+	function IsContextInfo ($item) {
+		$o = new NWC2ClipItem($item);
+
+		return $o->IsContextInfo();
+	}
+
+	function PutClipText ($staffindex, $cliptext) {
+		$StaffData =& $this->StaffData[$staffindex];
+
+		$clip = new NWC2Clip($cliptext);
+
+		// remove any fake and context items left at the beginning
+		while ($clip->Items && $this->IsContextInfo($clip->Items[0]))
+			array_shift($clip->Items);
+
+		if ($StaffData->BodyItems === $clip->Items)
+			return false;
+
+		$StaffData->BodyItems = $clip->Items;
+		return true;
+	}
+
 	function OutputSongText ($compress = false) {
 		$prefix = ($compress ? "compress.zlib://" : "");
 
