@@ -1101,17 +1101,17 @@ class mainDialog extends wxDialog
 				break;
 
 			case "editfullcommand":
-				$this->setupCtrlPanel("active");
+				$this->setupCtrlPanel("active", "inactive", "active", "");
 				$this->currentPanel = new parmPanel($this->pagePanel, $this->nextButton, $this->usertools, $this->usertool);
 				break;
 
 			case "editverification":
-				$this->setupCtrlPanel("active");
+				$this->setupCtrlPanel("active", "inactive", "active", "");
 				$this->currentPanel = new verifyPanel($this->pagePanel, $this->nextButton, $this->SongData, $this->staffsubset, $this->fullcommand);
 				break;
 
 			case "editresults":
-				$this->setupCtrlPanel("inactive");
+				$this->setupCtrlPanel($this->allowBackFromResults ? "active" : "inactive");
 				$this->currentPanel = new resultsPanel($this->pagePanel, $this->nextButton, $this->execresults, $this->bitmapHeight);
 				break;
 
@@ -1174,6 +1174,10 @@ class mainDialog extends wxDialog
 
 				break;
 
+			case "editresults":
+				$this->gotoState("getresultsback");
+				break;
+
 			default:
 				$this->fail("DoBack: unknown state: {$this->currentPage}");
 		}
@@ -1227,6 +1231,8 @@ class mainDialog extends wxDialog
 		global $argv;
 
 		static $GotArgUserToolAlready = false;
+		static $ExecuteIndex = 0;
+		static $ExecuteIndexWall = -1;
 
 		while (true) {
 			switch ($nextstate) {
@@ -1307,33 +1313,48 @@ class mainDialog extends wxDialog
 					return;
 
 				case "getresultsbegin":
-					$this->executeindex = 0;
+					$ExecuteIndex = 0;
+					$ExecuteIndexWall = -1;
 
 					$nextstate = "getresults";
 					break;
 
 				case "getresults":
-					$staffindex = $this->staffsubset[$this->executeindex];
+					$staffindex = $this->staffsubset[$ExecuteIndex];
 
 					// get results and display them, unless they were applied
 					if ($this->getResults($staffindex, $this->execresults))
 						$nextstate = "editresults";
-					else
+					else {
 						$nextstate = "getresultsnext";
+						$ExecuteIndexWall = $ExecuteIndex + 1;
+					}
 
 					break;
 
 				case "editresults":
+					$this->allowBackFromResults = ($ExecuteIndex > $ExecuteIndexWall);
+
 					$this->setupPage("editresults");
 					return;
 
 				case "getresultsnext":
-					$this->executeindex++;
+					$ExecuteIndex++;
 
-					if ($this->executeindex < count($this->staffsubset))
+					if ($ExecuteIndex < count($this->staffsubset))
 						$nextstate = "getresults";
 					else
 						$nextstate = "getresultsdone";
+
+					break;
+
+				case "getresultsback":
+					$ExecuteIndex--;
+
+					if ($ExecuteIndex >= 0)
+						$nextstate = "getresults";
+					else
+						$nextstate = "editverification";
 
 					break;
 
