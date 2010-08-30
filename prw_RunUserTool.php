@@ -85,9 +85,212 @@ require_once("lib/nwc2clips.inc");
 require_once("lib/nwc2config.inc");
 require_once("lib/nwc2gui.inc");
 
-require_once("usr/nwc2parse.inc");
-
 define("RUT_PAGEWIDTH", 400);
+
+/*************************************************************************************************/
+
+function getSongItem ($advance = false) {
+	static $file = null;
+	static $read = true;
+	static $item = null;
+
+	if (!$file)
+		$file = fopen("compress.zlib://php://stdin", "r");
+
+	if ($read)
+		$item = fgets($file);
+
+	if (trim($item) == NWC2_ENDFILETXT) {
+		$read = false;
+		return false;
+	}
+
+	if (!$item)
+		trigger_error("Could not find song ending tag", E_USER_ERROR);
+
+	$read = $advance;
+	return $item;
+}
+
+// parse header items and staff data from a song's items
+class ParseSong {
+	var $SongHeader = null;
+	var $SongFooter = null;
+
+	var $Comments = array();
+	var $Version = "";
+
+	var $HeaderItems = array();
+	var $HeaderValues = array();
+
+	var $StaffData = array();
+
+	function __construct () {
+		while (getSongItem()) {
+			$hdr = getSongItem(true);
+
+			switch (NWC2ClassifyLine($hdr)) {
+				case NWCTXTLTYP_FORMATHEADER:
+					if (preg_match('/^'.NWC2_STARTFILETXT.'\(([0-9]+)\.([0-9]+)/', $hdr, $m)) {
+						$this->Version = "$m[1].$m[2]";
+						break 2;
+					}
+
+					trigger_error("Unrecognized notation song format header", E_USER_ERROR);
+
+				case NWCTXTLTYP_COMMENT:
+					$this->Comments[] = substr($hdr, 1);
+					break;
+			}
+		}
+
+		if (!getSongItem())
+			trigger_error("Format error in the song text", E_USER_ERROR);
+
+		$this->SongHeader = NWC2_STARTFILETXT."(".$this->Version.")";
+		$this->SongFooter = NWC2_ENDFILETXT;
+
+		while (getSongItem() && $this->isHeaderItem(getSongItem(), true))
+			$this->HeaderItems[] = getSongItem(true);
+
+		while (getSongItem() && !$this->isHeaderItem(getSongItem(), false))
+			$this->StaffData[] = new ParseStaff();
+	}
+
+	private function isHeaderItem ($item, $capture) {
+		$ObjType = NWC2GetObjType($item);
+
+		if (NWC2ClassifyObjType($ObjType) == NWC2OBJTYP_FILEPROPERTY) {
+			if ($capture) {
+				$o = new NWC2ClipItem($item);
+
+				if ($ObjType != "Font") {
+					// we expect at most one of these per song
+					$this->HeaderValues[$ObjType] = $o->Opts;
+				}
+				else {
+					// we expect one or more of these per song
+					if (!isset($this->HeaderValues[$ObjType]))
+						$this->HeaderValues[$ObjType] = array();
+
+					$this->HeaderValues[$ObjType][] = $o->Opts;
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	function GetClipText ($staffindex) {
+		$StaffData =& $this->StaffData[$staffindex];
+
+		$trans = $StaffData->HeaderValues["StaffInstrument"]["Trans"];
+		$startingbar = $this->HeaderValues["PgSetup"]["StartingBar"];
+
+		$cliptext = array();
+
+		$cliptext[] = NWC2_STARTCLIP."({$this->Version},Single)".PHP_EOL;
+
+		$cliptext[] = "|Fake|Instrument|Trans:$trans".PHP_EOL;
+		$cliptext[] = "|Context|Bar:$startingbar,AtStart".PHP_EOL;
+
+		$cliptext = array_merge($cliptext, $StaffData->BodyItems);
+
+		$cliptext[] = NWC2_ENDCLIP.PHP_EOL;
+
+		return $cliptext;
+	}
+
+	function IsContextInfo ($item) {
+		$o = new NWC2ClipItem($item);
+
+		return $o->IsContextInfo();
+	}
+
+	function PutClipText ($staffindex, $cliptext) {
+		$StaffData =& $this->StaffData[$staffindex];
+
+		$clip = new NWC2Clip($cliptext);
+
+		// remove any fake and context items left at the beginning
+		while ($clip->Items && $this->IsContextInfo($clip->Items[0]))
+			array_shift($clip->Items);
+
+		if ($StaffData->BodyItems === $clip->Items)
+			return false;
+
+		$StaffData->BodyItems = $clip->Items;
+		return true;
+	}
+
+	function OutputSongText ($compress = false) {
+		$prefix = ($compress ? "compress.zlib://" : "");
+
+		$f = fopen($prefix."php://stdout", "w");
+
+		fwrite($f, $this->SongHeader.PHP_EOL);
+		fwrite($f, implode("", $this->HeaderItems));
+
+		foreach ($this->StaffData as $StaffData) {
+			fwrite($f, implode("", $StaffData->HeaderItems));
+			fwrite($f, implode("", $StaffData->BodyItems));
+		}
+
+		fwrite($f, $this->SongFooter.PHP_EOL);
+
+		fclose($f);
+	}
+};
+
+// parse header items and body items for a staff from a song's items
+class ParseStaff {
+	var $HeaderItems = array();
+	var $HeaderValues = array();
+
+	var $BodyItems = array();
+
+	function ParseStaff () {
+		while (getSongItem() && $this->isHeaderItem(getSongItem(), true))
+			$this->HeaderItems[] = getSongItem(true);
+
+		while (getSongItem() && !$this->isHeaderItem(getSongItem(), false))
+			$this->BodyItems[] = getSongItem(true);
+	}
+
+	private function isHeaderItem ($item, $capture) {
+		$ObjType = NWC2GetObjType($item);
+
+		$ObjTypeClass = NWC2ClassifyObjType($ObjType);
+		if (($ObjTypeClass == NWC2OBJTYP_STAFFPROPERTY) ||
+		    ($ObjTypeClass == NWC2OBJTYP_STAFFLYRIC)) {
+			if ($capture) {
+				$o = new NWC2ClipItem($item);
+
+				if ($ObjType != "StaffProperties") {
+					// we expect at most one of these per staff
+					// handles empty staff followed by another staff
+					if (isset($this->HeaderValues[$ObjType]))
+						return false;
+
+					$this->HeaderValues[$ObjType] = $o->Opts;
+				}
+				else {
+					// we expect one or more of these per staff
+					if (!isset($this->HeaderValues[$ObjType]))
+						$this->HeaderValues[$ObjType] = array();
+
+					$this->HeaderValues[$ObjType][] = $o->Opts;
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+}
 
 /*************************************************************************************************/
 
