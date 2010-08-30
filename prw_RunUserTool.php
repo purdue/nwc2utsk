@@ -85,7 +85,6 @@ require_once("lib/nwc2clips.inc");
 require_once("lib/nwc2config.inc");
 require_once("lib/nwc2gui.inc");
 
-require_once("lib/obj_NWC2Song.inc");
 require_once("usr/nwc2parse.inc");
 
 define("RUT_PAGEWIDTH", 400);

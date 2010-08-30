@@ -6,11 +6,6 @@
 	$Clip = new NWC2Clip();
 
    When expecting an entire song, this can be done:
-	$Song = new NWC2Song();
-
-   However, to parse out the song header (by item and by value), and to
-   parse out all the staffs (each header by item and by value, and each
-   body by item), one can do this instead:
 	$SongData = new ParseSong();
 
    Copyright © 2010 by Randy Williams
@@ -19,6 +14,29 @@
 */
 
 require_once("lib/nwc2clips.inc");
+
+function getSongItem ($advance = false) {
+	static $file = null;
+	static $read = true;
+	static $item = null;
+
+	if (!$file)
+		$file = fopen("compress.zlib://php://stdin", "r");
+
+	if ($read)
+		$item = fgets($file);
+
+	if (trim($item) == NWC2_ENDFILETXT) {
+		$read = false;
+		return false;
+	}
+
+	if (!$item)
+		trigger_error("Could not find song ending tag", E_USER_ERROR);
+
+	$read = $advance;
+	return $item;
+}
 
 // parse header items and staff data from a song's items
 class ParseSong {
@@ -33,22 +51,36 @@ class ParseSong {
 
 	var $StaffData = array();
 
-	function ParseSong ($src = 'php://stdin') {
-		$Song = new NWC2Song($src);
+	function __construct () {
+		while (getSongItem()) {
+			$hdr = getSongItem(true);
 
-		$this->SongHeader = $Song->GetSongHeader();
-		$this->SongFooter = $Song->GetSongFooter();
+			switch (NWC2ClassifyLine($hdr)) {
+				case NWCTXTLTYP_FORMATHEADER:
+					if (preg_match('/^'.NWC2_STARTFILETXT.'\(([0-9]+)\.([0-9]+)/', $hdr, $m)) {
+						$this->Version = "$m[1].$m[2]";
+						break 2;
+					}
 
-		$this->Comments = $Song->Comments;
-		$this->Version = $Song->Version;
+					trigger_error("Unrecognized notation song format header", E_USER_ERROR);
 
-		$index = 0;
+				case NWCTXTLTYP_COMMENT:
+					$this->Comments[] = substr($hdr, 1);
+					break;
+			}
+		}
 
-		while (($index < count($Song->Items)) && $this->isHeaderItem($Song->Items[$index], true))
-			$this->HeaderItems[] = $Song->Items[$index++];
+		if (!getSongItem())
+			trigger_error("Format error in the song text", E_USER_ERROR);
 
-		while (($index < count($Song->Items)) && !$this->isHeaderItem($Song->Items[$index], false))
-			$this->StaffData[] = new ParseStaff($Song->Items, $index);
+		$this->SongHeader = NWC2_STARTFILETXT."(".$this->Version.")";
+		$this->SongFooter = NWC2_ENDFILETXT;
+
+		while (getSongItem() && $this->isHeaderItem(getSongItem(), true))
+			$this->HeaderItems[] = getSongItem(true);
+
+		while (getSongItem() && !$this->isHeaderItem(getSongItem(), false))
+			$this->StaffData[] = new ParseStaff();
 	}
 
 	private function isHeaderItem ($item, $capture) {
@@ -150,12 +182,12 @@ class ParseStaff {
 	private $MappingsAdded = false;
 	private $ImplodesAdded = false;
 
-	function ParseStaff ($items, &$index) {
-		while (($index < count($items)) && $this->isHeaderItem($items[$index], true))
-			$this->HeaderItems[] = $items[$index++];
+	function ParseStaff () {
+		while (getSongItem() && $this->isHeaderItem(getSongItem(), true))
+			$this->HeaderItems[] = getSongItem(true);
 
-		while (($index < count($items)) && !$this->isHeaderItem($items[$index], false))
-			$this->BodyItems[] = $items[$index++];
+		while (getSongItem() && !$this->isHeaderItem(getSongItem(), false))
+			$this->BodyItems[] = getSongItem(true);
 	}
 
 	private function isHeaderItem ($item, $capture) {
