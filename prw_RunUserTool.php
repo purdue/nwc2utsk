@@ -593,6 +593,8 @@ class toolPanel extends wizardPanel
 	private $groupselected = null;
 	private $toolselected = null;
 
+	private static $selections = array();
+
 	function __construct ($parent, $nextButton, $usertools, $usertool) {
 		parent::__construct($parent, $nextButton, self::prompt);
 
@@ -679,6 +681,8 @@ class toolPanel extends wizardPanel
 		$this->toollist = array_keys($this->usertools[$groupname]);
 		$this->toolobject->Set($this->wxArrayString($this->toollist, 40));
 		$this->toolselected = null;
+		if (isset(self::$selections[$this->groupselected]))
+			$this->doSelectTool(self::$selections[$this->groupselected]);
 
 		$this->doFit();
 
@@ -695,6 +699,8 @@ class toolPanel extends wizardPanel
 	function doSelectTool ($toolindex) {
 		if ($toolindex === $this->toolselected)
 			return;
+
+		self::$selections[$this->groupselected] = $toolindex;
 
 		$this->toolselected = $toolindex;
 		$this->toolobject->SetSelection($this->toolselected);
@@ -1230,6 +1236,7 @@ class mainDialog extends wxDialog
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
 
 					$GotArgUserToolAlready = false;
+					$this->needsverify = false;
 
 					// ask for a staff subset, unless we have one from the args
 					if ($this->staffsubset === null)
@@ -1336,6 +1343,7 @@ class mainDialog extends wxDialog
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
 
 					$GotArgUserToolAlready = false;
+					$this->needsverify = false;
 
 					// if any args left, do another user tool, else done
 					if ($argv)
