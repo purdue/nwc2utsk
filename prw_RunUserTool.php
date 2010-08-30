@@ -164,17 +164,13 @@ class ParseSong {
 			if ($capture) {
 				$o = new NWC2ClipItem($item);
 
-				if ($ObjType != "Font") {
-					// we expect at most one of these per song
-					$this->HeaderValues[$ObjType] = $o->Opts;
-				}
-				else {
-					// we expect one or more of these per song
-					if (!isset($this->HeaderValues[$ObjType]))
-						$this->HeaderValues[$ObjType] = array();
+				if (!isset($this->HeaderValues[$ObjType]))
+					$this->HeaderValues[$ObjType] = array();
 
+				if ($ObjType == "Font")
 					$this->HeaderValues[$ObjType][] = $o->Opts;
-				}
+				else
+					$this->HeaderValues[$ObjType] = array_merge($this->HeaderValues[$ObjType], $o->Opts);
 			}
 
 			return true;
@@ -268,21 +264,12 @@ class ParseStaff {
 			if ($capture) {
 				$o = new NWC2ClipItem($item);
 
-				if ($ObjType != "StaffProperties") {
-					// we expect at most one of these per staff
-					// handles empty staff followed by another staff
-					if (isset($this->HeaderValues[$ObjType]))
-						return false;
+				if (!isset($this->HeaderValues[$ObjType]))
+					$this->HeaderValues[$ObjType] = array();
+				else if ($ObjType == "AddStaff")
+					return false;
 
-					$this->HeaderValues[$ObjType] = $o->Opts;
-				}
-				else {
-					// we expect one or more of these per staff
-					if (!isset($this->HeaderValues[$ObjType]))
-						$this->HeaderValues[$ObjType] = array();
-
-					$this->HeaderValues[$ObjType][] = $o->Opts;
-				}
+				$this->HeaderValues[$ObjType] = array_merge($this->HeaderValues[$ObjType], $o->Opts);
 			}
 
 			return true;
@@ -1386,22 +1373,22 @@ class mainDialog extends wxDialog
 		foreach ($this->SongData->StaffData as $index => $StaffData) {
 			switch ($subsetname) {
 				case "visible":
-					if ($StaffData->HeaderValues["StaffProperties"][0]["Visible"] == "N")
+					if ($StaffData->HeaderValues["StaffProperties"]["Visible"] == "N")
 						continue 2;
 					break;
 
 				case "hidden":
-					if ($StaffData->HeaderValues["StaffProperties"][0]["Visible"] == "Y")
+					if ($StaffData->HeaderValues["StaffProperties"]["Visible"] == "Y")
 						continue 2;
 					break;
 
 				case "audible":
-					if ($StaffData->HeaderValues["StaffProperties"][1]["Muted"] == "Y")
+					if ($StaffData->HeaderValues["StaffProperties"]["Muted"] == "Y")
 						continue 2;
 					break;
 
 				case "muted":
-					if ($StaffData->HeaderValues["StaffProperties"][1]["Muted"] == "N")
+					if ($StaffData->HeaderValues["StaffProperties"]["Muted"] == "N")
 						continue 2;
 					break;
 			}
