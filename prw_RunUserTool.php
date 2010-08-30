@@ -1113,7 +1113,9 @@ class mainDialog extends wxDialog
 				$this->fail("setupPage: unknown page: $page");
 		}
 
-		$this->needsverify = true;
+		if ($page != "editresults")
+			$this->needsverify = true;
+
 		$this->currentPage = $page;
 		$this->Refresh();
 	}
@@ -1218,12 +1220,16 @@ class mainDialog extends wxDialog
 	function gotoState ($nextstate) {
 		global $argv;
 
+		static $GotArgUserToolAlready = false;
+
 		while (true) {
 			switch ($nextstate) {
 				case "getstaffsubset":
 					// get staff subset(s) from args if any
 					while ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
+
+					$GotArgUserToolAlready = false;
 
 					// ask for a staff subset, unless we have one from the args
 					if ($this->staffsubset === null)
@@ -1239,8 +1245,9 @@ class mainDialog extends wxDialog
 
 				case "getusertool":
 					// get user tool from args if any, else get it from user
-					if ($argv) {
+					if ($argv && !$GotArgUserToolAlready) {
 						$this->usertool = $this->verifyUserTool(array_shift($argv));
+						$GotArgUserToolAlready = true;
 
 						// run this user tool, but skip over it if no staffs selected 
 						if ($this->staffsubset)
@@ -1327,6 +1334,8 @@ class mainDialog extends wxDialog
 					// get staff subset(s) from args if any
 					while ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
+
+					$GotArgUserToolAlready = false;
 
 					// if any args left, do another user tool, else done
 					if ($argv)
