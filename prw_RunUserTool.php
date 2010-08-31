@@ -420,6 +420,9 @@ class staffPanel extends wizardPanel
 
 	private $SongData = null;
 
+	private $groupStaffs = array();
+	private $staffGroups = array();
+
 	private $grouplist = array();
 	private $stafflist = array();
 
@@ -433,18 +436,62 @@ class staffPanel extends wizardPanel
 		parent::__construct($parent, $nextButton, self::prompt);
 
 		$this->SongData = $SongData;
+		$virtGroupStaffs = array();
 
-		foreach ($this->SongData->StaffData as $StaffData) {
+		foreach ($this->SongData->StaffData as $staffindex => $StaffData) {
 			$groupname = $StaffData->HeaderValues["AddStaff"]["Group"];
 			$staffname = $StaffData->HeaderValues["AddStaff"]["Name"];
 
 			if (!in_array($groupname, $this->grouplist)) {
 				$this->grouplist[] = $groupname;
 				$this->groupselected[] = false;
+				$this->groupStaffs[] = array();
 			}
 
 			$this->stafflist[] = $staffname;
 			$this->staffselected[] = false;
+			$this->staffGroups[] = array();
+
+			$groupindex = array_search($groupname, $this->grouplist);
+
+			$this->groupStaffs[$groupindex][] = $staffindex;
+			$this->staffGroups[$staffindex][] = $groupindex;
+
+			$virtGroupStaffs["all"][] = $staffindex;
+
+			if ($StaffData->HeaderValues["StaffProperties"]["Visible"] == "Y")
+				$virtGroupStaffs["visible"][] = $staffindex;
+			else
+				$virtGroupStaffs["hidden"][] = $staffindex;
+
+			if ($StaffData->HeaderValues["StaffProperties"]["Muted"] == "N")
+				$virtGroupStaffs["audible"][] = $staffindex;
+			else
+				$virtGroupStaffs["muted"][] = $staffindex;
+		}
+
+		if (count($this->grouplist) <= 1)
+			unset($virtGroupStaffs["all"]);
+
+		foreach (array_keys($virtGroupStaffs) as $virtGroup) {
+			if ($virtGroup == "all")
+				continue;
+	
+			if (count($virtGroupStaffs[$virtGroup]) == count($this->stafflist))
+				unset($virtGroupStaffs[$virtGroup]);
+			else if (count($virtGroupStaffs[$virtGroup]) == 0)
+				unset($virtGroupStaffs[$virtGroup]);
+		}
+
+		foreach ($virtGroupStaffs as $virtGroup => $virtStaffs) {
+			$this->grouplist[] = "[:$virtGroup:]";
+			$this->groupselected[] = false;
+
+			$groupindex = count($this->grouplist) - 1;
+			$this->groupStaffs[$groupindex] = $virtStaffs;
+
+			foreach ($virtStaffs as $staffindex)
+				$this->staffGroups[$staffindex][] = $groupindex;
 		}
 
 		//--------------------------------------------------------------------------------------
@@ -520,18 +567,16 @@ class staffPanel extends wizardPanel
 		$this->doSelectGroup($groupindex, $selected);
 	}
 
-	function checkSelectGroup ($staffindex) {
-		$groupname = $this->SongData->StaffData[$staffindex]->HeaderValues["AddStaff"]["Group"];
-		$groupindex = array_search($groupname, $this->grouplist);
+	function checkSelectGroups ($staffindex) {
+		foreach ($this->staffGroups[$staffindex] as $groupindex) {
+			$selected = true;
 
-		$selected = true;
-
-		foreach ($this->SongData->StaffData as $staffindex => $StaffData)
-			if ($StaffData->HeaderValues["AddStaff"]["Group"] == $groupname)
-				if (!$this->staffselected[$staffindex])
+			foreach ($this->groupStaffs[$groupindex] as $staffindex2)
+				if (!$this->staffselected[$staffindex2])
 					$selected = false;
 
-		$this->updateGroup($groupindex, $selected);
+			$this->updateGroup($groupindex, $selected);
+		}
 	}
 
 	function updateStaff ($staffindex, $selected) {
@@ -545,7 +590,7 @@ class staffPanel extends wizardPanel
 
 	function doSelectStaff ($staffindex, $selected) {
 		$this->updateStaff($staffindex, $selected);
-		$this->checkSelectGroup($staffindex);
+		$this->checkSelectGroups($staffindex);
 
 		$this->updateNextButton();
 	}
@@ -558,11 +603,8 @@ class staffPanel extends wizardPanel
 	}
 
 	function checkSelectStaffs ($groupindex, $selected) {
-		$groupname = $this->grouplist[$groupindex];
-
-		foreach ($this->SongData->StaffData as $staffindex => $StaffData)
-			if ($StaffData->HeaderValues["AddStaff"]["Group"] == $groupname)
-				$this->updateStaff($staffindex, $selected);
+		foreach ($this->groupStaffs[$groupindex] as $staffindex)
+			$this->doSelectStaff($staffindex, $selected);
 	}
 
 	function getInputData () {
