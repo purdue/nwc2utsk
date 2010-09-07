@@ -818,8 +818,8 @@ class parmPanel extends wizardPanel
 					case "|":
 						preg_match_all('/\|([^|]+)/', $m2[2], $m3);
 
-						$parmObject = new wxChoice($this, $this->new_wxID(), wxDefaultPosition,
-										wxDefaultSize, nwc2gui_wxArray($m3[1]));
+						$parmObject = new wxChoice($this, $this->new_wxID());
+						$parmObject->Append(nwc2gui_wxArray($m3[1]));
 
 						if ($selection)
 							$parmObject->SetSelection(array_search($selection, $m3[1]));
@@ -831,12 +831,12 @@ class parmPanel extends wizardPanel
 					case "#":
 						preg_match('/\[(\d+),(\d+)\]/', $m2[2], $m3);
 
-						// no "spin" stuff available right now :-(
+						// full "spin" stuff not available right now :-(
 						$range = range(intval($m3[1]), intval($m3[2]));
 
 						if (count($range) <= 20) {
-							$parmObject = new wxChoice($this, $this->new_wxID(), wxDefaultPosition,
-											wxDefaultSize, nwc2gui_wxArray($range));
+							$parmObject = new wxChoice($this, $this->new_wxID());
+							$parmObject->Append(nwc2gui_wxArray($range));
 
 							if ($selection)
 								$parmObject->SetSelection(array_search($selection, $range));
@@ -844,14 +844,24 @@ class parmPanel extends wizardPanel
 								$parmObject->SetSelection(0);
 						}
 						else {
-							$text = ($selection ? $selection : $m3[1]);
-							$parmObject = new wxTextCtrl($this, $this->new_wxID(), $text);
+							$parmObject = new wxTextCtrl($this, $this->new_wxID());
+
+							if ($selection)
+								$parmObject->SetValue($selection);
+							else
+								$parmObject->SetValue($m3[1]);
 						}
+
 						break;
 
 					case "*":
-						$text = ($selection ? $selection : substr($m2[2], 1));
-						$parmObject = new wxTextCtrl($this, $this->new_wxID(), $text);
+						$parmObject = new wxTextCtrl($this, $this->new_wxID());
+
+						if ($selection)
+							$parmObject->SetValue($selection);
+						else
+							$parmObject->SetValue(substr($m2[2], 1));
+
 						break;
 
 					default:
