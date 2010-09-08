@@ -820,6 +820,44 @@ class toolPanel extends wizardPanel
 
 /*************************************************************************************************/
 
+class _wxSpinCtrl extends wxBoxSizer
+{
+	private $wxTextCtrl = null;
+	private $wxSpinButton = null;
+
+	function __construct ($parent, $id1, $id2) {
+		parent::__construct(wxHORIZONTAL);
+
+		$this->wxTextCtrl = new wxTextCtrl($parent, $id2);
+		$this->Add($this->wxTextCtrl);
+		$parent->Connect($id2, wxEVT_COMMAND_TEXT_UPDATED, array($this, "handleText"));
+
+		$this->wxSpinButton = new wxSpinButton($parent, $id1, wxDefaultPosition, wxDefaultSize, wxSP_HORIZONTAL);
+		$this->Add($this->wxSpinButton);
+		$parent->Connect($id1, wxEVT_SCROLL_THUMBTRACK, array($this, "handleSpin"));
+	}
+
+	function handleSpin () {
+		$this->wxTextCtrl->SetValue($this->wxSpinButton->GetValue());
+	}
+
+	function handleText () {
+		$this->wxSpinButton->SetValue(intval($this->wxTextCtrl->GetValue()));
+	}
+
+	function GetValue () {
+		return $this->wxSpinButton->GetValue();
+	}
+
+	function SetValue ($value) {
+		$this->wxTextCtrl->SetValue($value);
+	}
+
+	function SetRange ($min, $max) {
+		$this->wxSpinButton->SetRange($min, $max);
+	}
+}
+
 class parmPanel extends wizardPanel
 {
 	const prompt = "Select all of the parameter values to specify to the user tool:";
@@ -877,26 +915,13 @@ class parmPanel extends wizardPanel
 					case "#":
 						preg_match('/\[(\d+),(\d+)\]/', $m2[2], $m3);
 
-						// full "spin" stuff not available right now :-(
-						$range = range(intval($m3[1]), intval($m3[2]));
+						$parmObject = new _wxSpinCtrl($this, $this->new_wxID(), $this->new_wxID());
+						$parmObject->SetRange($m3[1], $m3[2]);
 
-						if (count($range) <= 20) {
-							$parmObject = new wxChoice($this, $this->new_wxID());
-							$parmObject->Append(nwc2gui_wxArray($range));
-
-							if ($selection)
-								$parmObject->SetSelection(array_search($selection, $range));
-							else
-								$parmObject->SetSelection(0);
-						}
-						else {
-							$parmObject = new wxTextCtrl($this, $this->new_wxID());
-
-							if ($selection)
-								$parmObject->SetValue($selection);
-							else
-								$parmObject->SetValue($m3[1]);
-						}
+						if ($selection)
+							$parmObject->SetValue($selection);
+						else
+							$parmObject->SetValue($m3[1]);
 
 						break;
 
