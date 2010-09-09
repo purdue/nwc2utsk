@@ -1136,11 +1136,7 @@ class mainDialog extends wxDialog
 	function __construct () {
 		parent::__construct(null, -1, "Run User Tool");
 
-		$bmpfile = __DIR__.DIRECTORY_SEPARATOR."prw_RunUserTool.bmp";
-		if (!file_exists($bmpfile))
-			$this->fail("File missing: $bmpfile");
-
-		$this->bitmap = new wxBitmap($bmpfile, wxBITMAP_TYPE_BMP);
+		$this->bitmap = new rutBitmap();
 		$this->bitmapHeight = $this->bitmap->GetHeight();
 
 		$wxID = wxID_HIGHEST;
@@ -1612,6 +1608,22 @@ class mainDialog extends wxDialog
 		unlink($tempstderr);
 
 		return $exitcode;
+	}
+}
+
+/*************************************************************************************************/
+
+class rutBitmap extends wxBitmap
+{
+	function __construct () {
+		$bmpfile = __DIR__.DIRECTORY_SEPARATOR."prw_RunUserTool.bmp";
+
+		if (!file_exists($bmpfile)) {
+			fprintf(STDERR, "File missing: $bmpfile\n");
+			exit(NWC2RC_ERROR);
+		}
+
+		parent::__construct($bmpfile, wxBITMAP_TYPE_BMP);
 	}
 }
 
