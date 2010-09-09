@@ -1045,6 +1045,180 @@ class verifyPanel extends wizardPanel
 
 /*************************************************************************************************/
 
+class textdelta {
+	var $text1, $text2;
+	var $lines1, $lines2;
+	var $mode;
+	var $report;
+
+	function __construct ($text1, $text2) {
+		$this->text1 = array();
+		$this->text2 = array();
+
+		foreach ($text1 as $line) $this->text1[] = rtrim($line);
+		foreach ($text2 as $line) $this->text2[] = rtrim($line);
+	}
+
+	function printsep ($mode) {
+		static $cur_mode;
+
+		if (isset($cur_mode) && ($mode != $cur_mode))
+			$this->report[] = str_repeat("-", 79)."\n";
+
+		$cur_mode = $mode;
+	}
+
+	function textequal ($linenum1, $linenum2) {
+		return ($this->text1[$linenum1] === $this->text2[$linenum2]);
+	}
+
+	function printmatch ($linenum1, $linenum2) {
+		if (($linenum1 !== null) && ($linenum2 !== null)) {
+			$this->printsep(0);
+			$this->report[] = sprintf("%5d %5d %s\n", $linenum1 + 1, $linenum2 + 1, $this->text1[$linenum1]);
+
+			$this->lines1[$linenum1]++;
+			$this->lines2[$linenum2]++;
+		}
+		elseif ($linenum1 !== null) {
+			$this->printsep(1);
+			$this->report[] = sprintf("%5d %5s %s\n", $linenum1 + 1, "-", $this->text1[$linenum1]);
+
+			$this->lines1[$linenum1]++;
+		}
+		else {
+			$this->printsep(2);
+			$this->report[] = sprintf("%5s %5d %s\n", "-", $linenum2 + 1, $this->text2[$linenum2]);
+
+			$this->lines2[$linenum2]++;
+		}
+	}
+
+	function findpivot ($min1, $max1, $min2, $max2) {
+		$freq1 = array();
+		$freq2 = array();
+
+		for ($i=$min1; $i<=$max1; $i++) {
+			$line = $this->text1[$i];
+
+			if (!isset($freq1[$line]))
+				$freq1[$line] = 0;
+
+			$freq1[$line]++;
+		}
+
+		for ($i=$min2; $i<=$max2; $i++) {
+			$line = $this->text2[$i];
+
+			if (!isset($freq2[$line]))
+				$freq2[$line] = 0;
+
+			$freq2[$line]++;
+		}
+
+		$besti = null;
+
+		for ($i=$min1; $i<=$max1; $i++) {
+			$line = $this->text1[$i];
+
+			if ($freq1[$line] == 1)
+				if (isset($freq2[$line]) && ($freq2[$line] == 1))
+					if (!$besti || (strlen($line) > strlen($this->text1[$besti])))
+						$besti = $i;
+		}
+
+		if ($besti !== null) {
+			$bestj = array_search($this->text1[$besti], array_slice($this->text2, $min2, $max2 - $min2 + 1, true));
+
+			return array($besti, $bestj);
+		}
+		else
+			return array(null, null);
+	}
+
+	function reportonlines ($min1, $max1, $min2, $max2) {
+		if (($min1 > $max1) || ($min2 > $max2)) {
+			for ($i=$min1; $i<=$max1; $i++)
+				$this->printmatch($i, null);
+
+			for ($i=$min2; $i<=$max2; $i++)
+				$this->printmatch(null, $i);
+
+			return;
+		}
+
+		while (($min1 < $max1) && ($min2 < $max2) && $this->textequal($min1, $min2)) {
+			$this->printmatch($min1, $min2);
+
+			$min1++;
+			$min2++;
+		}
+
+		$buffer = array();
+
+		while (($min1 < $max1) && ($min2 < $max2) && $this->textequal($max1, $max2)) {
+			$buffer[] = array($max1, $max2);
+
+			$max1--;
+			$max2--;
+		}
+
+		list($pivot1, $pivot2) = $this->findpivot($min1, $max1, $min2, $max2);
+
+		if ($pivot1 !== null) {
+			$this->reportonlines($min1, $pivot1 - 1, $min2, $pivot2 - 1);
+
+			$this->printmatch($pivot1, $pivot2);
+
+			$this->reportonlines($pivot1 + 1, $max1, $pivot2 + 1, $max2);
+		}
+		else {
+			for ($i=$min1; $i<=$max1; $i++)
+				$this->printmatch($i, null);
+
+			for ($i=$min2; $i<=$max2; $i++)
+				$this->printmatch(null, $i);
+		}
+
+		while ($buffer) {
+			list($linenum1, $linenum2) = array_pop($buffer);
+			$this->printmatch($linenum1, $linenum2);
+		}
+	}
+
+	function getreport () {
+		$this->report = array();
+
+		$this->lines1 = array_pad(array(), count($this->text1), 0);
+		$this->lines2 = array_pad(array(), count($this->text2), 0);
+
+		$this->reportonlines(0, count($this->text1) - 1, 0, count($this->text2) - 1);
+
+		$buffer = array();
+		$final_report = array();
+
+		for ($i=0; $i<=count($this->report); $i++) {
+			if (($i == count($this->report)) || ($this->report[$i][0] == "-")) {
+				foreach ($buffer as $index => $line) {
+					if (($index < 3) || ($index >= count($buffer) - 3))
+						$final_report[] = $line;
+					else if ($index == 3)
+						$final_report[] = "...\n";
+				}
+
+				if ($i < count($this->report))
+					$final_report[] = $this->report[$i];
+
+				$buffer = array();
+			}
+			else
+				$buffer[] = $this->report[$i];
+		}
+
+		return $final_report;
+	}
+}
+
 class resultsPanel extends wizardPanel
 {
 	const prompt = "Results are shown below";
@@ -1059,6 +1233,11 @@ class resultsPanel extends wizardPanel
 		parent::__construct($parent, $nextButton, self::prompt);
 
 		extract($execResults);
+
+		if (($exitcode == NWC2RC_SUCCESS) & !$stderr) {
+			$td = new textdelta($stdin, $stdout);
+			$stderr = $td->getreport();
+		}
 
 		$initialChoice = (($exitcode == NWC2RC_REPORT) ? "STDOUT" : "STDERR");
 
@@ -1142,6 +1321,7 @@ class mainDialog extends wxDialog
 	private $needsverify = false;
 	private $parmsneeded = false;
 	private $songchanged = false;
+	private $showchanges = false;
 
 	function __construct () {
 		parent::__construct(null, -1, "Run User Tool");
@@ -1350,6 +1530,12 @@ class mainDialog extends wxDialog
 
 		array_shift($argv);
 
+		// for now
+		if ($argv && ($argv[0] == "debug")) {
+			$this->showchanges = true;
+			array_shift($argv);
+		}
+
 		$this->usertools = $this->getUserTools();
 		$this->SongData = new ParseSong();
 
@@ -1455,7 +1641,11 @@ class mainDialog extends wxDialog
 					if ($this->getResults($staffindex, $this->execresults))
 						$nextstate = "editresults";
 					else {
-						$nextstate = "getresultsnext";
+						if ($this->showchanges)
+							$nextstate = "editresults";
+						else
+							$nextstate = "getresultsnext";
+
 						$ExecuteIndexWall = $ExecuteIndex + 1;
 					}
 
@@ -1522,6 +1712,7 @@ class mainDialog extends wxDialog
 
 		$stdin = $this->SongData->GetClipText($staffindex);
 		$exitcode = $this->runCommand($this->fullcommand, $stdin, $stdout, $stderr, $compress);
+		$results = compact("stdin", "stdout", "stderr", "exitcode");
 
 		if (($exitcode == NWC2RC_SUCCESS) & !$stderr) {
 			if ($this->SongData->PutClipText($staffindex, $stdout))
@@ -1530,7 +1721,6 @@ class mainDialog extends wxDialog
 			return false;
 		}
 
-		$results = compact("stdin", "stdout", "stderr", "exitcode");
 		return true;
 	}
 
