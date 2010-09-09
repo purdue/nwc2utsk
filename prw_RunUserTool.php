@@ -820,6 +820,23 @@ class toolPanel extends wizardPanel
 
 /*************************************************************************************************/
 
+class _wxChoice extends wxChoice
+{
+	function __construct ($parent, $id) {
+		parent::__construct($parent, $id);
+	}
+
+	function GetValue () {
+		// GetStringSelection not available at this time
+		return $this->GetString($this->GetSelection());
+	}
+
+	function SetValue ($value) {
+		// SetStringSelection not available at this time
+		$this->SetSelection($this->FindString($value, true));
+	}
+}
+
 class _wxSpinCtrl extends wxBoxSizer
 {
 	private $wxTextCtrl = null;
@@ -902,13 +919,11 @@ class parmPanel extends wizardPanel
 					case "|":
 						preg_match_all('/\|([^|]+)/', $m2[2], $m3);
 
-						$parmObject = new wxChoice($this, $this->new_wxID());
+						$parmObject = new _wxChoice($this, $this->new_wxID());
 						$parmObject->Append(nwc2gui_wxArray($m3[1]));
 
-						if ($selection)
-							$parmObject->SetSelection(array_search($selection, $m3[1]));
-						else
-							$parmObject->SetSelection(0);
+						if (!$selection)
+							$selection = reset($m3[1]);
 
 						break;
 
@@ -918,20 +933,16 @@ class parmPanel extends wizardPanel
 						$parmObject = new _wxSpinCtrl($this, $this->new_wxID(), $this->new_wxID());
 						$parmObject->SetRange($m3[1], $m3[2]);
 
-						if ($selection)
-							$parmObject->SetValue($selection);
-						else
-							$parmObject->SetValue($m3[1]);
+						if (!$selection)
+							$selection = $m3[1];
 
 						break;
 
 					case "*":
 						$parmObject = new wxTextCtrl($this, $this->new_wxID());
 
-						if ($selection)
-							$parmObject->SetValue($selection);
-						else
-							$parmObject->SetValue(substr($m2[2], 1));
+						if (!$selection)
+							$selection = substr($m2[2], 1);
 
 						break;
 
@@ -940,6 +951,8 @@ class parmPanel extends wizardPanel
 						$this->destroy();
 						return;
 				}
+
+				$parmObject->SetValue($selection);
 
 				$col2Sizer->Add($parmObject, 0, wxALIGN_LEFT|wxTOP, 10);
 				$this->parmObjects[] = $parmObject;
@@ -959,10 +972,7 @@ class parmPanel extends wizardPanel
 		self::$selections[$this->groupname][$this->toolname] = array();
 
 		foreach ($this->parmObjects as $parmObject) {
-			if (method_exists($parmObject, "GetString"))
-				$selection = $parmObject->GetString($parmObject->GetSelection());
-			else
-				$selection = $parmObject->GetValue();
+			$selection = $parmObject->GetValue();
 
 			$fullcommand = preg_replace('/<PROMPT:([^>]*)>/', $selection, $fullcommand, 1);
 			self::$selections[$this->groupname][$this->toolname][] = $selection;
