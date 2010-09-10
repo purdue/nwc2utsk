@@ -1046,10 +1046,13 @@ class verifyPanel extends wizardPanel
 /*************************************************************************************************/
 
 class textdelta {
-	var $text1, $text2;
-	var $lines1, $lines2;
-	var $mode;
-	var $report;
+	private $text1, $text2;
+	private $lines1, $lines2;
+	private $mode;
+	private $report;
+
+	public $oldlines = array();
+	public $newlines = array();
 
 	function __construct ($text1, $text2) {
 		$this->text1 = array();
@@ -1083,12 +1086,14 @@ class textdelta {
 		elseif ($linenum1 !== null) {
 			$this->printsep(1);
 			$this->report[] = sprintf("%5d %5s %s\n", $linenum1 + 1, "-", $this->text1[$linenum1]);
+			$this->oldlines[] = $this->text1[$linenum1];
 
 			$this->lines1[$linenum1]++;
 		}
 		else {
 			$this->printsep(2);
 			$this->report[] = sprintf("%5s %5d %s\n", "-", $linenum2 + 1, $this->text2[$linenum2]);
+			$this->newlines[] = $this->text2[$linenum2];
 
 			$this->lines2[$linenum2]++;
 		}
@@ -1236,7 +1241,37 @@ class resultsPanel extends wizardPanel
 
 		if (($exitcode == NWC2RC_SUCCESS) & !$stderr) {
 			$td = new textdelta($stdin, $stdout);
-			$stderr = $td->getreport();
+			$delta = $td->getreport();
+
+			$counts = array();
+
+			foreach ($td->oldlines as $line)
+				if ($objtype = NWC2GetObjType($line)) {
+					if (!isset($counts[$objtype]))
+						$counts[$objtype] = array("old" => 0, "new" => 0);
+					$counts[$objtype]["old"]++;
+				}
+
+			foreach ($td->newlines as $line)
+				if ($objtype = NWC2GetObjType($line)) {
+					if (!isset($counts[$objtype]))
+						$counts[$objtype] = array("old" => 0, "new" => 0);
+					$counts[$objtype]["new"]++;
+				}
+
+			foreach ($counts as $objtype => $diffs)
+				if (!in_array($objtype, array("Fake", "Context")))
+					if ($diffs["old"] == $diffs["new"])
+						$stderr[] = "Changed {$diffs["old"]} $objtype objects\n";
+					else if ($diffs["old"] && $diffs["new"])
+						$stderr[] = "Changed {$diffs["old"]} $objtype objects into {$diffs["new"]} $objtype objects\n";
+					else if ($diffs["old"])
+						$stderr[] = "Removed {$diffs["old"]} $objtype objects\n";
+					else
+						$stderr[] = "Added {$diffs["new"]} $objtype objects\n";
+
+			$stderr[] = "\n";
+			$stderr = array_merge($stderr, $delta);
 		}
 
 		$initialChoice = (($exitcode == NWC2RC_REPORT) ? "STDOUT" : "STDERR");
