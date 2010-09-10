@@ -214,11 +214,32 @@ class ParseSong {
 		while ($clip->Items && $this->IsContextInfo($clip->Items[0]))
 			array_shift($clip->Items);
 
-		if ($StaffData->BodyItems === $clip->Items)
-			return false;
+		// must correct for possibility script sent back wrong EOL
+		foreach ($clip->Items as &$item)
+			$item = rtrim($item).PHP_EOL;
 
+		if ($StaffData->BodyItems === $clip->Items)
+			return;
+
+		$StaffData->SaveBodyItems = $StaffData->BodyItems;
 		$StaffData->BodyItems = $clip->Items;
-		return true;
+	}
+
+	function UndoClipText ($staffindex) {
+		$StaffData =& $this->StaffData[$staffindex];
+
+		if ($StaffData->SaveBodyItems) {
+			$StaffData->BodyItems = $StaffData->SaveBodyItems;
+			$StaffData->SaveBodyItems = array();
+		}
+	}
+
+	function SongChanged () {
+		foreach ($this->StaffData as $StaffData)
+			if ($StaffData->SaveBodyItems)
+				return true;
+
+		return false;
 	}
 
 	function OutputSongText ($compress = false) {
@@ -246,6 +267,7 @@ class ParseStaff {
 	var $HeaderValues = array();
 
 	var $BodyItems = array();
+	var $SaveBodyItems = array();
 
 	function ParseStaff () {
 		while (getSongItem() && $this->isHeaderItem(getSongItem(), true))
@@ -1259,16 +1281,21 @@ class resultsPanel extends wizardPanel
 					$counts[$objtype]["new"]++;
 				}
 
+			unset($counts["Fake"]);
+			unset($counts["Context"]);
+
 			foreach ($counts as $objtype => $diffs)
-				if (!in_array($objtype, array("Fake", "Context")))
-					if ($diffs["old"] == $diffs["new"])
-						$stderr[] = "Changed {$diffs["old"]} $objtype objects\n";
-					else if ($diffs["old"] && $diffs["new"])
-						$stderr[] = "Changed {$diffs["old"]} $objtype objects into {$diffs["new"]} $objtype objects\n";
-					else if ($diffs["old"])
-						$stderr[] = "Removed {$diffs["old"]} $objtype objects\n";
-					else
-						$stderr[] = "Added {$diffs["new"]} $objtype objects\n";
+				if ($diffs["old"] == $diffs["new"])
+					$stderr[] = "Changed {$diffs["old"]} $objtype objects\n";
+				else if ($diffs["old"] && $diffs["new"])
+					$stderr[] = "Changed {$diffs["old"]} $objtype objects into {$diffs["new"]} $objtype objects\n";
+				else if ($diffs["old"])
+					$stderr[] = "Removed {$diffs["old"]} $objtype objects\n";
+				else
+					$stderr[] = "Added {$diffs["new"]} $objtype objects\n";
+
+			if (!$counts)
+				$stderr[] = "Nothing added, removed, or changed\n";
 
 			$stderr[] = "\n";
 			$stderr = array_merge($stderr, $delta);
@@ -1355,7 +1382,6 @@ class mainDialog extends wxDialog
 
 	private $needsverify = false;
 	private $parmsneeded = false;
-	private $songchanged = false;
 	private $showchanges = false;
 
 	function __construct () {
@@ -1418,7 +1444,7 @@ class mainDialog extends wxDialog
 		exit(NWC2RC_ERROR);
 	}
 
-	function setupCtrlPanel ($back, $next = "inactive", $cancel = "active", $status = null) {
+	function setupCtrlPanel ($back, $next, $cancel, $status) {
 		if ($status !== null)
 			$this->statusText->SetLabel(str_pad($status, 80));
 
@@ -1455,7 +1481,7 @@ class mainDialog extends wxDialog
 				break;
 
 			case "editresults":
-				$this->setupCtrlPanel($this->allowBackFromResults ? "active" : "inactive");
+				$this->setupCtrlPanel("active", "inactive", "active", null);
 				$this->currentPanel = new resultsPanel($this->pagePanel, $this->nextButton, $this->execresults, $this->bitmapHeight);
 				break;
 
@@ -1582,7 +1608,6 @@ class mainDialog extends wxDialog
 
 		static $GotArgUserToolAlready = false;
 		static $ExecuteIndex = 0;
-		static $ExecuteIndexWall = -1;
 
 		while (true) {
 			switch ($nextstate) {
@@ -1664,7 +1689,6 @@ class mainDialog extends wxDialog
 
 				case "getresultsbegin":
 					$ExecuteIndex = 0;
-					$ExecuteIndexWall = -1;
 
 					$nextstate = "getresults";
 					break;
@@ -1672,23 +1696,15 @@ class mainDialog extends wxDialog
 				case "getresults":
 					$staffindex = $this->staffsubset[$ExecuteIndex];
 
-					// get results and display them, unless they were applied
-					if ($this->getResults($staffindex, $this->execresults))
+					// get results and display them, unless skipping applied results
+					if ($this->getResults($staffindex) || $this->showchanges)
 						$nextstate = "editresults";
-					else {
-						if ($this->showchanges)
-							$nextstate = "editresults";
-						else
-							$nextstate = "getresultsnext";
-
-						$ExecuteIndexWall = $ExecuteIndex + 1;
-					}
+					else
+						$nextstate = "getresultsnext";
 
 					break;
 
 				case "editresults":
-					$this->allowBackFromResults = ($ExecuteIndex > $ExecuteIndexWall);
-
 					$this->setupPage("editresults");
 					return;
 
@@ -1703,10 +1719,20 @@ class mainDialog extends wxDialog
 					break;
 
 				case "getresultsback":
+					// undo this staff's results before backing up
+					$staffindex = $this->staffsubset[$ExecuteIndex];
+					$this->SongData->UndoClipText($staffindex);
+
 					$ExecuteIndex--;
 
-					if ($ExecuteIndex >= 0)
+					if ($ExecuteIndex >= 0) {
+						// undo previous staff's results before redoing them
+						$staffindex = $this->staffsubset[$ExecuteIndex];
+						$this->SongData->UndoClipText($staffindex);
+
+						$this->showchanges = true;
 						$nextstate = "getresults";
+					}
 					else
 						$nextstate = "editverification";
 
@@ -1729,7 +1755,7 @@ class mainDialog extends wxDialog
 					break;
 
 				case "finished":
-					if ($this->songchanged)
+					if ($this->SongData->SongChanged())
 						$this->SongData->OutputSongText(true);
 
 					$this->Destroy();
@@ -1738,7 +1764,7 @@ class mainDialog extends wxDialog
 		}
 	}
 
-	function getResults ($staffindex, &$results) {
+	function getResults ($staffindex) {
 		$staffname = $this->SongData->StaffData[$staffindex]->HeaderValues["AddStaff"]["Name"];
 		$this->setupCtrlPanel("inactive", "inactive", "inactive", "Processing: $staffname");
 
@@ -1747,12 +1773,10 @@ class mainDialog extends wxDialog
 
 		$stdin = $this->SongData->GetClipText($staffindex);
 		$exitcode = $this->runCommand($this->fullcommand, $stdin, $stdout, $stderr, $compress);
-		$results = compact("stdin", "stdout", "stderr", "exitcode");
+		$this->execresults = compact("stdin", "stdout", "stderr", "exitcode");
 
 		if (($exitcode == NWC2RC_SUCCESS) & !$stderr) {
-			if ($this->SongData->PutClipText($staffindex, $stdout))
-				$this->songchanged = true;
-
+			$this->SongData->PutClipText($staffindex, $stdout);
 			return false;
 		}
 
