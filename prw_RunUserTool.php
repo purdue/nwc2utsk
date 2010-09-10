@@ -1010,7 +1010,7 @@ class verifyPanel extends wizardPanel
 {
 	const prompt = "Verify that the user tool command should be run against the staff parts:";
 
-	function __construct ($parent, $nextButton, $SongData, $staffsubset, $fullcommand) {
+	function __construct ($parent, $nextButton, $SongData, $staffsubset, $fullcommand, $check) {
 		parent::__construct($parent, $nextButton, self::prompt);
 
 		$staffnames = array();
@@ -1041,6 +1041,16 @@ class verifyPanel extends wizardPanel
 
 		//--------------------------------------------------------------------------------------
 
+		$rowSizer = $this->newRow();
+
+		$checkbox = new wxCheckBox($this, $this->new_wxID(), "Display summary of changes, if user tool returns success");
+		$rowSizer->Add($checkbox);
+
+		$checkbox->SetValue($check);
+		$this->checkbox = $checkbox;
+
+		//--------------------------------------------------------------------------------------
+
 		$this->doFit();
 	}
 
@@ -1062,6 +1072,10 @@ class verifyPanel extends wizardPanel
 
 		$result[] = implode($glue, $line);
 		return implode($break, $result);
+	}
+
+	function getInputData () {
+		return $this->checkbox->GetValue();
 	}
 }
 
@@ -1477,7 +1491,7 @@ class mainDialog extends wxDialog
 
 			case "editverification":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new verifyPanel($this->pagePanel, $this->nextButton, $this->SongData, $this->staffsubset, $this->fullcommand);
+				$this->currentPanel = new verifyPanel($this->pagePanel, $this->nextButton, $this->SongData, $this->staffsubset, $this->fullcommand, $this->showchanges);
 				break;
 
 			case "editresults":
@@ -1511,6 +1525,7 @@ class mainDialog extends wxDialog
 				break;
 
 			case "editverification":
+				$this->showchanges = $this->currentPanel->getInputData();
 				break;
 
 			case "editresults":
@@ -1591,8 +1606,7 @@ class mainDialog extends wxDialog
 
 		array_shift($argv);
 
-		// for now
-		if ($argv && ($argv[0] == "debug")) {
+		if ($argv && (strtolower($argv[0]) == "display")) {
 			$this->showchanges = true;
 			array_shift($argv);
 		}
