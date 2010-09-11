@@ -1990,15 +1990,11 @@ define("LOGODATA",
 class logoBitmap extends wxBitmap
 {
 	function __construct () {
-		$logofile = tempnam("", "rut");
-
 		$logodata = gzuncompress(base64_decode(LOGODATA));
-		file_put_contents($logofile, $logodata);
+		$wxStream = new wxMemoryInputStream($logodata, strlen($logodata));
 
-		$wxImage = new wxImage($logofile, wxBITMAP_TYPE_BMP);
+		$wxImage = new wxImage($wxStream, wxBITMAP_TYPE_BMP);
 		parent::__construct($wxImage);
-
-		unlink($logofile);
 	}
 }
 
