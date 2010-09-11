@@ -2005,6 +2005,8 @@ class logoBitmap extends wxBitmap
 class mainApp extends wxApp
 {
 	function OnInit () {
+		wxInitAllImageHandlers();
+
 		$md = new mainDialog();
 		$md->Show();
 
