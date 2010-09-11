@@ -1401,7 +1401,7 @@ class mainDialog extends wxDialog
 	function __construct () {
 		parent::__construct(null, -1, "Run User Tool");
 
-		$this->bitmap = new rutBitmap();
+		$this->bitmap = new logoBitmap();
 		$this->bitmapHeight = $this->bitmap->GetHeight();
 
 		$wxID = wxID_HIGHEST;
@@ -1886,7 +1886,7 @@ class mainDialog extends wxDialog
 
 /*************************************************************************************************/
 
-define("BMPDATA",
+define("LOGODATA",
 	'eJztnA9UU1eawG+rOElICDr+oU67GmpoUUcTqQpqi0s5dERn6qADNWttZ0CSNrVC'.
 	'0qLhz9h2GHamm+nQCmfGwjBWy1DLmJOcLXRRs9MRDu2ULB13z9LsYhFbWFRSQ07Y'.
 	'k0w4Odnv3pfEkPcSKybXPS3f6dd7333v3d/9vvvdf48cc76/+KeIyIa5CD0I6SHQ'.
@@ -1984,18 +1984,19 @@ define("BMPDATA",
 	'n3sNc6/Q5H72JPTvETxdKa5R5JKJ6glsLd1xNFmzVwE7KoVibw3dcTR55cqXX179'.
 	'7LMvmb+qUOOGCwXuXq7fqygo7CcVHPJ13cdy2RqQOHL/56dR5K/x447HvupZ7ix3'.
 	'ljvLneXOcme5s9xZ7ix3ljvLneXOcme5d5rL8ekqntIX4NIWLcOlL6WYeydk9f8B'.
-	'b6PVww==');
+	'b6PVww=='
+	);
 
-class rutBitmap extends wxBitmap
+class logoBitmap extends wxBitmap
 {
 	function __construct () {
-		$bmpfile = tempnam("", "rut");
+		$logofile = tempnam("", "rut");
 
-		file_put_contents($bmpfile, gzuncompress(base64_decode(BMPDATA)));
+		file_put_contents($logofile, gzuncompress(base64_decode(LOGODATA)));
 
-		parent::__construct($bmpfile, wxBITMAP_TYPE_BMP);
+		parent::__construct($logofile, wxBITMAP_TYPE_BMP);
 
-		unlink($bmpfile);
+		unlink($logofile);
 	}
 }
 
