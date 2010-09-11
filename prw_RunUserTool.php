@@ -1992,9 +1992,11 @@ class logoBitmap extends wxBitmap
 	function __construct () {
 		$logofile = tempnam("", "rut");
 
-		file_put_contents($logofile, gzuncompress(base64_decode(LOGODATA)));
+		$logodata = gzuncompress(base64_decode(LOGODATA));
+		file_put_contents($logofile, $logodata);
 
-		parent::__construct($logofile, wxBITMAP_TYPE_BMP);
+		$wxImage = new wxImage($logofile, wxBITMAP_TYPE_BMP);
+		parent::__construct($wxImage);
 
 		unlink($logofile);
 	}
