@@ -1626,8 +1626,8 @@ class mainDialog extends wxDialog
 		while (true) {
 			switch ($nextstate) {
 				case "getstaffsubset":
-					// get staff subset(s) from args if any
-					while ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
+					// get staff subset from args if any
+					if ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
 
 					$GotArgUserToolAlready = false;
@@ -1753,8 +1753,8 @@ class mainDialog extends wxDialog
 					break;
 
 				case "getresultsdone":
-					// get staff subset(s) from args if any
-					while ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
+					// get staff subset from args if any
+					if ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
 
 					$GotArgUserToolAlready = false;
