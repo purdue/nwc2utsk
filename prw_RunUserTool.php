@@ -594,12 +594,13 @@ class staffPanel extends wizardPanel
 	}
 
 	function checkSelectGroups ($staffindex) {
+		$unselectedstaffs = array_keys($this->staffselected, false);
+
 		foreach ($this->staffGroups[$staffindex] as $groupindex) {
 			$selected = true;
 
-			foreach ($this->groupStaffs[$groupindex] as $staffindex2)
-				if (!$this->staffselected[$staffindex2])
-					$selected = false;
+			if (array_intersect($this->groupStaffs[$groupindex], $unselectedstaffs))
+				$selected = false;
 
 			$this->updateGroup($groupindex, $selected);
 		}
@@ -629,13 +630,7 @@ class staffPanel extends wizardPanel
 	}
 
 	function getInputData () {
-		$staffsubset = array();
-
-		foreach ($this->staffselected as $index => $value)
-			if ($value)
-				$staffsubset[] = $index;
-
-		return $staffsubset;
+		return array_keys($this->staffselected, true);
 	}
 }
 
