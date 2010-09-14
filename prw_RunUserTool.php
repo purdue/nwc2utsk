@@ -444,9 +444,6 @@ class staffPanel extends wizardPanel
 
 	private $groupStaffs = array();
 
-	private $grouplist = array();
-	private $stafflist = array();
-
 	private $groupobject = null;
 	private $staffobject = null;
 
@@ -458,19 +455,22 @@ class staffPanel extends wizardPanel
 		$this->SongData = $SongData;
 		$virtGroupStaffs = array_fill_keys(array("all", "visible", "hidden", "audible", "hidden"), array());
 
+		$stafflist = array();
+		$grouplist = array();
+
 		foreach ($this->SongData->StaffData as $staffindex => $StaffData) {
 			$groupname = $StaffData->HeaderValues["AddStaff"]["Group"];
 			$staffname = $StaffData->HeaderValues["AddStaff"]["Name"];
 
-			if (!in_array($groupname, $this->grouplist)) {
-				$this->grouplist[] = $groupname;
+			if (!in_array($groupname, $grouplist)) {
+				$grouplist[] = $groupname;
 				$this->groupStaffs[] = array();
 			}
 
-			$this->stafflist[] = $staffname;
+			$stafflist[] = $staffname;
 			$this->staffselected[] = false;
 
-			$groupindex = array_search($groupname, $this->grouplist);
+			$groupindex = array_search($groupname, $grouplist);
 
 			$this->groupStaffs[$groupindex][] = $staffindex;
 
@@ -487,26 +487,26 @@ class staffPanel extends wizardPanel
 				$virtGroupStaffs["muted"][] = $staffindex;
 		}
 
-		if (count($this->grouplist) <= 1)
+		if (count($grouplist) <= 1)
 			unset($virtGroupStaffs["all"]);
 
 		foreach (array_keys($virtGroupStaffs) as $virtGroup) {
 			if ($virtGroup == "all")
 				continue;
 	
-			if (count($virtGroupStaffs[$virtGroup]) == count($this->stafflist))
+			if (count($virtGroupStaffs[$virtGroup]) == count($stafflist))
 				unset($virtGroupStaffs[$virtGroup]);
 			else if (count($virtGroupStaffs[$virtGroup]) == 0)
 				unset($virtGroupStaffs[$virtGroup]);
 		}
 
 		if ($virtGroupStaffs) {
-			$this->grouplist[] = str_repeat("=", 10);
+			$grouplist[] = str_repeat("=", 10);
 			$this->groupStaffs[] = array();
 		}
 
 		foreach ($virtGroupStaffs as $virtGroup => $virtStaffs) {
-			$this->grouplist[] = $virtGroup;
+			$grouplist[] = $virtGroup;
 			$this->groupStaffs[] = $virtStaffs;
 		}
 
@@ -524,7 +524,7 @@ class staffPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-					 nwc2gui_wxArray($this->grouplist), wxLB_MULTIPLE);
+					 nwc2gui_wxArray($grouplist), wxLB_MULTIPLE);
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
@@ -540,7 +540,7 @@ class staffPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-					 nwc2gui_wxArray($this->stafflist), wxLB_MULTIPLE);
+					 nwc2gui_wxArray($stafflist), wxLB_MULTIPLE);
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectStaff"));
