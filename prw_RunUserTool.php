@@ -1992,8 +1992,7 @@ define("LOGODATA",
 class logoBitmap extends wxBitmap
 {
 	function __construct () {
-		$logodata = base64_decode(LOGODATA);
-		$wxStream = new wxMemoryInputStream($logodata, strlen($logodata));
+		$wxStream = new nwc2gui_MemoryInStream(LOGODATA, array("base64"));
 
 		$wxImage = new wxImage($wxStream, wxBITMAP_TYPE_PNG);
 		parent::__construct($wxImage);
@@ -2005,8 +2004,6 @@ class logoBitmap extends wxBitmap
 class mainApp extends wxApp
 {
 	function OnInit () {
-		wxInitAllImageHandlers();
-
 		$md = new mainDialog();
 		$md->Show();
 
