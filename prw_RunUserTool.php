@@ -31,7 +31,7 @@ Intermediate usages:
 	Command: php\php.exe scripts\prw_RunUserTool.php <staffsubset>
 
 	where <staffsubset> is one of:
-		all, visibile, hidden, audible, or muted
+		all, visible, hidden, audible, or muted
 
 - Dedicated to a particular user tool
 	prompts for a staff subset,
@@ -86,6 +86,13 @@ require_once("lib/nwc2config.inc");
 require_once("lib/nwc2gui.inc");
 
 define("RUT_PAGEWIDTH", 400);
+
+$builtinsubsets = array(
+	"all" => null,
+	"visible" => array("Visible", "Y"),
+	"hidden" => array("Visible", "N"),
+	"audible" => array("Muted", "N"),
+	"muted" => array("Muted", "Y"));
 
 /*************************************************************************************************/
 
@@ -450,10 +457,12 @@ class staffPanel extends wizardPanel
 	private $staffselected = array();
 
 	function __construct ($parent, $nextButton, $SongData, $staffsubset) {
+		global $builtinsubsets;
+
 		parent::__construct($parent, $nextButton, self::prompt);
 
 		$this->SongData = $SongData;
-		$virtGroupStaffs = array_fill_keys(array("all", "visible", "hidden", "audible", "hidden"), array());
+		$virtGroupStaffs = array_fill_keys(array_keys($builtinsubsets), array());
 
 		$stafflist = array();
 		$grouplist = array();
@@ -474,17 +483,12 @@ class staffPanel extends wizardPanel
 
 			$this->groupStaffs[$groupindex][] = $staffindex;
 
-			$virtGroupStaffs["all"][] = $staffindex;
+			foreach ($builtinsubsets as $subsetname => $subsetcond) {
+				list($property, $value) = $subsetcond;
 
-			if ($StaffData->HeaderValues["StaffProperties"]["Visible"] == "Y")
-				$virtGroupStaffs["visible"][] = $staffindex;
-			else
-				$virtGroupStaffs["hidden"][] = $staffindex;
-
-			if ($StaffData->HeaderValues["StaffProperties"]["Muted"] == "N")
-				$virtGroupStaffs["audible"][] = $staffindex;
-			else
-				$virtGroupStaffs["muted"][] = $staffindex;
+				if (!$property || ($StaffData->HeaderValues["StaffProperties"][$property] == $value))
+					$virtGroupStaffs[$subsetname][] = $staffindex;
+			}
 		}
 
 		if (count($grouplist) <= 1)
@@ -1306,8 +1310,6 @@ class resultsPanel extends wizardPanel
 
 class mainDialog extends wxDialog
 {
-	static $staffsubsets = array("all", "visible", "hidden", "audible", "muted");
-
 	private $usertools = array();
 	private $SongData = null;
 
@@ -1554,6 +1556,7 @@ class mainDialog extends wxDialog
 
 	function gotoState ($nextstate) {
 		global $argv;
+		global $builtinsubsets;
 
 		static $GotArgUserToolAlready = false;
 		static $ExecuteIndex = 0;
@@ -1562,7 +1565,7 @@ class mainDialog extends wxDialog
 			switch ($nextstate) {
 				case "getstaffsubset":
 					// get staff subset from args if any
-					if ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
+					if ($argv && array_key_exists(strtolower(reset($argv)), $builtinsubsets))
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
 
 					$GotArgUserToolAlready = false;
@@ -1689,7 +1692,7 @@ class mainDialog extends wxDialog
 
 				case "getresultsdone":
 					// get staff subset from args if any
-					if ($argv && in_array(strtolower($argv[0]), self::$staffsubsets))
+					if ($argv && array_key_exists(strtolower(reset($argv)), $builtinsubsets))
 						$this->staffsubset = $this->mapStaffSubset(strtolower(array_shift($argv)));
 
 					$GotArgUserToolAlready = false;
@@ -1735,31 +1738,13 @@ class mainDialog extends wxDialog
 	function mapStaffSubset ($subsetname) {
 		$staffsubset = array();
 
-		foreach ($this->SongData->StaffData as $index => $StaffData) {
-			switch ($subsetname) {
-				case "visible":
-					if ($StaffData->HeaderValues["StaffProperties"]["Visible"] == "N")
-						continue 2;
-					break;
+		global $builtinsubsets;
 
-				case "hidden":
-					if ($StaffData->HeaderValues["StaffProperties"]["Visible"] == "Y")
-						continue 2;
-					break;
+		list($property, $value) = $builtinsubsets[$subsetname];
 
-				case "audible":
-					if ($StaffData->HeaderValues["StaffProperties"]["Muted"] == "Y")
-						continue 2;
-					break;
-
-				case "muted":
-					if ($StaffData->HeaderValues["StaffProperties"]["Muted"] == "N")
-						continue 2;
-					break;
-			}
-
-			$staffsubset[] = $index;
-		}
+		foreach ($this->SongData->StaffData as $index => $StaffData)
+			if (!$property || ($StaffData->HeaderValues["StaffProperties"][$property] == $value))
+				$staffsubset[] = $index;
 
 		return $staffsubset;
 	}
