@@ -31,7 +31,8 @@ Intermediate usages:
 	Command: php\php.exe scripts\prw_RunUserTool.php <staffsubset>
 
 	where <staffsubset> is one of:
-		all, visible, hidden, audible, or muted
+		all, visible, hidden, audible, muted, stdstyle, orchestral,
+		oneline, fivelines, devicezero, deviceone, maxvolume, channelten
 
 - Dedicated to a particular user tool
 	prompts for a staff subset,
@@ -92,7 +93,15 @@ $builtinsubsets = array(
 	"visible" => array("Visible", "Y"),
 	"hidden" => array("Visible", "N"),
 	"audible" => array("Muted", "N"),
-	"muted" => array("Muted", "Y"));
+	"muted" => array("Muted", "Y"),
+	"stdstyle" => array("Style", "Standard"),
+	"orchestral" => array("Style", "Orchestral"),
+	"oneline" => array("Lines", 1),
+	"fivelines" => array("Lines", 5),
+	"devicezero" => array("Device", 0),
+	"deviceone" => array("Device", 1),
+	"maxvolume" => array("Volume", 127),
+	"channelten" => array("Channel", 10));
 
 /*************************************************************************************************/
 
