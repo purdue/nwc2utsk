@@ -443,7 +443,6 @@ class staffPanel extends wizardPanel
 	private $SongData = null;
 
 	private $groupStaffs = array();
-	private $staffGroups = array();
 
 	private $grouplist = array();
 	private $stafflist = array();
@@ -470,12 +469,10 @@ class staffPanel extends wizardPanel
 
 			$this->stafflist[] = $staffname;
 			$this->staffselected[] = false;
-			$this->staffGroups[] = array();
 
 			$groupindex = array_search($groupname, $this->grouplist);
 
 			$this->groupStaffs[$groupindex][] = $staffindex;
-			$this->staffGroups[$staffindex][] = $groupindex;
 
 			$virtGroupStaffs["all"][] = $staffindex;
 
@@ -511,11 +508,6 @@ class staffPanel extends wizardPanel
 		foreach ($virtGroupStaffs as $virtGroup => $virtStaffs) {
 			$this->grouplist[] = $virtGroup;
 			$this->groupStaffs[] = $virtStaffs;
-
-			$groupindex = count($this->grouplist) - 1;
-
-			foreach ($virtStaffs as $staffindex)
-				$this->staffGroups[$staffindex][] = $groupindex;
 		}
 
 		//--------------------------------------------------------------------------------------
@@ -587,13 +579,13 @@ class staffPanel extends wizardPanel
 		$this->doSelectGroup($groupindex, $selected);
 	}
 
-	function checkSelectGroups ($staffindex) {
+	function updateAllGroups () {
 		$unselectedstaffs = array_keys($this->staffselected, false);
 
-		foreach ($this->staffGroups[$staffindex] as $groupindex) {
+		foreach ($this->groupStaffs as $groupindex => $groupstaffs) {
 			$selected = true;
 
-			if (array_intersect($this->groupStaffs[$groupindex], $unselectedstaffs))
+			if (!$groupstaffs || array_intersect($groupstaffs, $unselectedstaffs))
 				$selected = false;
 
 			$this->updateGroup($groupindex, $selected);
@@ -611,7 +603,7 @@ class staffPanel extends wizardPanel
 
 	function doSelectStaff ($staffindex, $selected) {
 		$this->updateStaff($staffindex, $selected);
-		$this->checkSelectGroups($staffindex);
+		$this->updateAllGroups();
 
 		$this->updateNextButton();
 	}
