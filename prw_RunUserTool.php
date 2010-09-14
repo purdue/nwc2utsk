@@ -571,19 +571,15 @@ class staffPanel extends wizardPanel
 			$this->groupobject->Deselect($groupindex);
 	}
 
-	function doSelectGroup ($groupindex, $selected) {
+	function handleSelectGroup ($event) {
+		$groupindex = $event->GetSelection();
+		$selected = $this->groupobject->IsSelected($groupindex);
+
 		foreach ($this->groupStaffs[$groupindex] as $staffindex)
 			$this->updateStaff($staffindex, $selected);
 
 		$this->updateAllGroups();
 		$this->updateNextButton();
-	}
-
-	function handleSelectGroup ($event) {
-		$groupindex = $event->GetSelection();
-		$selected = $this->groupobject->IsSelected($groupindex);
-
-		$this->doSelectGroup($groupindex, $selected);
 	}
 
 	function updateAllGroups () {
