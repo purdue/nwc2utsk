@@ -419,7 +419,7 @@ class wizardPanel extends wxPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), $prompt, wxDefaultPosition,
 						new wxSize(RUT_PAGEWIDTH - 20, -1));
 		$this->panelSizer->Add($statictext, 0, wxALL, 10);
-	} 
+	}
 
 	// override this method to control when the next button is valid
 	protected function isNextValid () {
@@ -506,7 +506,7 @@ class staffPanel extends wizardPanel
 		foreach (array_keys($virtGroupStaffs) as $virtGroup) {
 			if ($virtGroup == "all")
 				continue;
-	
+
 			if (count($virtGroupStaffs[$virtGroup]) == count($stafflist))
 				unset($virtGroupStaffs[$virtGroup]);
 			else if (count($virtGroupStaffs[$virtGroup]) == 0)
@@ -516,11 +516,11 @@ class staffPanel extends wizardPanel
 		if ($virtGroupStaffs) {
 			$grouplist[] = str_repeat("=", 10);
 			$this->groupStaffs[] = array();
-	
+
 			$grouplist = array_merge($grouplist, array_keys($virtGroupStaffs));
 			$this->groupStaffs = array_merge($this->groupStaffs, array_values($virtGroupStaffs));
 		}
-	
+
 		//--------------------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
@@ -1579,7 +1579,7 @@ class mainDialog extends wxDialog
 						$this->usertool = $this->verifyUserTool(array_shift($argv));
 						$GotArgUserToolAlready = true;
 
-						// run this user tool, but skip over it if no staffs selected 
+						// run this user tool, but skip over it if no staffs selected
 						if ($this->staffsubset)
 							$nextstate = "getfullcommand";
 						else
