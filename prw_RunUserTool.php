@@ -577,10 +577,6 @@ class staffPanel extends wizardPanel
 		return in_array(true, $this->staffselected);
 	}
 
-	function updateGroup ($groupindex, $selected) {
-		$this->updateSelection($this->groupobject, $groupindex, $selected);
-	}
-
 	function handleSelectGroup ($event) {
 		$groupindex = $event->GetSelection();
 		$selected = $this->groupobject->IsSelected($groupindex);
@@ -593,18 +589,15 @@ class staffPanel extends wizardPanel
 
 		foreach ($this->groupStaffs as $groupindex => $groupstaffs) {
 			$selected = ($groupstaffs && !array_diff($groupstaffs, $selectedstaffs));
-			$this->updateGroup($groupindex, $selected);
+			$this->updateSelection($this->groupobject, $groupindex, $selected);
 		}
 	}
 
-	function updateStaff ($staffindex, $selected) {
-		$this->staffselected[$staffindex] = $selected;
-		$this->updateSelection($this->staffobject, $staffindex, $selected);
-	}
-
 	function updateStaffs ($staffsubset, $selected) {
-		foreach ($staffsubset as $staffindex)
-			$this->updateStaff($staffindex, $selected);
+		foreach ($staffsubset as $staffindex) {
+			$this->staffselected[$staffindex] = $selected;
+			$this->updateSelection($this->staffobject, $staffindex, $selected);
+		}
 
 		$this->updateAllGroups();
 		$this->updateNextButton();
