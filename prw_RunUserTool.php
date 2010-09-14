@@ -564,13 +564,8 @@ class staffPanel extends wizardPanel
 		$this->doFit();
 
 		// reselect any staffs previously selected
-		if ($staffsubset) {
-			foreach ($staffsubset as $staffindex)
-				$this->updateStaff($staffindex, true);
-
-			$this->updateAllGroups();
-			$this->updateNextButton();
-		}
+		if ($staffsubset)
+			$this->updateStaffs($staffsubset, true);
 	}
 
 	function updateSelection ($object, $index, $selected) {
@@ -590,11 +585,7 @@ class staffPanel extends wizardPanel
 		$groupindex = $event->GetSelection();
 		$selected = $this->groupobject->IsSelected($groupindex);
 
-		foreach ($this->groupStaffs[$groupindex] as $staffindex)
-			$this->updateStaff($staffindex, $selected);
-
-		$this->updateAllGroups();
-		$this->updateNextButton();
+		$this->updateStaffs($this->groupStaffs[$groupindex], $selected);
 	}
 
 	function updateAllGroups () {
@@ -615,14 +606,19 @@ class staffPanel extends wizardPanel
 		$this->updateSelection($this->staffobject, $staffindex, $selected);
 	}
 
+	function updateStaffs ($staffsubset, $selected) {
+		foreach ($staffsubset as $staffindex)
+			$this->updateStaff($staffindex, $selected);
+
+		$this->updateAllGroups();
+		$this->updateNextButton();
+	}
+
 	function handleSelectStaff ($event) {
 		$staffindex = $event->GetSelection();
 		$selected = $this->staffobject->IsSelected($staffindex);
 
-		$this->updateStaff($staffindex, $selected);
-
-		$this->updateAllGroups();
-		$this->updateNextButton();
+		$this->updateStaffs(array($staffindex), $selected);
 	}
 
 	function getInputData () {
