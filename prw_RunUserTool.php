@@ -589,14 +589,10 @@ class staffPanel extends wizardPanel
 	}
 
 	function updateAllGroups () {
-		$unselectedstaffs = array_keys($this->staffselected, false);
+		$selectedstaffs = array_keys($this->staffselected, true);
 
 		foreach ($this->groupStaffs as $groupindex => $groupstaffs) {
-			$selected = true;
-
-			if (!$groupstaffs || array_intersect($groupstaffs, $unselectedstaffs))
-				$selected = false;
-
+			$selected = ($groupstaffs && !array_diff($groupstaffs, $selectedstaffs));
 			$this->updateGroup($groupindex, $selected);
 		}
 	}
