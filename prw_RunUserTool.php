@@ -443,20 +443,15 @@ class staffPanel extends wizardPanel
 	private $SongData = null;
 
 	private $groupStaffs = array();
-	private $virtGroupStaffs = array();
 	private $staffGroups = array();
-	private $staffVirtGroups = array();
 
 	private $grouplist = array();
-	private $virtgrouplist = array();
 	private $stafflist = array();
 
 	private $groupobject = null;
-	private $virtgroupobject = null;
 	private $staffobject = null;
 
 	private $groupselected = array();
-	private $virtgroupselected = array();
 	private $staffselected = array();
 
 	function __construct ($parent, $nextButton, $SongData, $staffsubset) {
@@ -510,15 +505,21 @@ class staffPanel extends wizardPanel
 				unset($virtGroupStaffs[$virtGroup]);
 		}
 
-		foreach ($virtGroupStaffs as $virtGroup => $virtStaffs) {
-			$this->virtgrouplist[] = $virtGroup;
-			$this->virtgroupselected[] = false;
-			$this->virtGroupStaffs[] = $virtStaffs;
+		if ($virtGroupStaffs) {
+			$this->grouplist[] = str_repeat("=", 10);
+			$this->groupselected[] = false;
+			$this->groupStaffs[] = array();
+		}
 
-			$groupindex = count($this->virtgrouplist) - 1;
+		foreach ($virtGroupStaffs as $virtGroup => $virtStaffs) {
+			$this->grouplist[] = $virtGroup;
+			$this->groupselected[] = false;
+			$this->groupStaffs[] = $virtStaffs;
+
+			$groupindex = count($this->grouplist) - 1;
 
 			foreach ($virtStaffs as $staffindex)
-				$this->staffVirtGroups[$staffindex][] = $groupindex;
+				$this->staffGroups[$staffindex][] = $groupindex;
 		}
 
 		//--------------------------------------------------------------------------------------
@@ -526,7 +527,7 @@ class staffPanel extends wizardPanel
 		$rowSizer = $this->newRow();
 
 		//-------------------------------------------------
-		// groups listboxes
+		// groups listbox
 
 		$colSizer = new wxBoxSizer(wxVERTICAL);
 		$rowSizer->Add($colSizer, 3);
@@ -540,18 +541,6 @@ class staffPanel extends wizardPanel
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
 		$this->groupobject = $listbox;
-
-		if ($this->virtgrouplist) {
-			$statictext = new wxStaticText($this, $this->new_wxID(), "Built-in Groups:");
-			$colSizer->Add($statictext, 0, wxTOP, 10);
-
-			$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-					 	nwc2gui_wxArray($this->virtgrouplist), wxLB_MULTIPLE);
-			$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
-
-			$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectVirtGroup"));
-			$this->virtgroupobject = $listbox;
-		}
 
 		//-------------------------------------------------
 		// staffs listbox
@@ -616,39 +605,6 @@ class staffPanel extends wizardPanel
 		}
 	}
 
-	function updateVirtGroup ($groupindex, $selected) {
-		$this->virtgroupselected[$groupindex] = $selected;
-
-		if ($selected)
-			$this->virtgroupobject->SetSelection($groupindex);
-		else
-			$this->virtgroupobject->Deselect($groupindex);
-	}
-
-	function doSelectVirtGroup ($groupindex, $selected) {
-		foreach ($this->virtGroupStaffs[$groupindex] as $staffindex)
-			$this->doSelectStaff($staffindex, $selected);
-	}
-
-	function handleSelectVirtGroup ($event) {
-		$groupindex = $event->GetSelection();
-		$selected = $this->virtgroupobject->IsSelected($groupindex);
-
-		$this->doSelectVirtGroup($groupindex, $selected);
-	}
-
-	function checkSelectVirtGroups ($staffindex) {
-		foreach ($this->staffVirtGroups[$staffindex] as $groupindex) {
-			$selected = true;
-
-			foreach ($this->virtGroupStaffs[$groupindex] as $staffindex2)
-				if (!$this->staffselected[$staffindex2])
-					$selected = false;
-
-			$this->updateVirtGroup($groupindex, $selected);
-		}
-	}
-
 	function updateStaff ($staffindex, $selected) {
 		$this->staffselected[$staffindex] = $selected;
 
@@ -661,9 +617,6 @@ class staffPanel extends wizardPanel
 	function doSelectStaff ($staffindex, $selected) {
 		$this->updateStaff($staffindex, $selected);
 		$this->checkSelectGroups($staffindex);
-
-		if ($this->staffVirtGroups)
-			$this->checkSelectVirtGroups($staffindex);
 
 		$this->updateNextButton();
 	}
