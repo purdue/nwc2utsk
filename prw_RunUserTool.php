@@ -451,7 +451,6 @@ class staffPanel extends wizardPanel
 	private $groupobject = null;
 	private $staffobject = null;
 
-	private $groupselected = array();
 	private $staffselected = array();
 
 	function __construct ($parent, $nextButton, $SongData, $staffsubset) {
@@ -466,7 +465,6 @@ class staffPanel extends wizardPanel
 
 			if (!in_array($groupname, $this->grouplist)) {
 				$this->grouplist[] = $groupname;
-				$this->groupselected[] = false;
 				$this->groupStaffs[] = array();
 			}
 
@@ -507,13 +505,11 @@ class staffPanel extends wizardPanel
 
 		if ($virtGroupStaffs) {
 			$this->grouplist[] = str_repeat("=", 10);
-			$this->groupselected[] = false;
 			$this->groupStaffs[] = array();
 		}
 
 		foreach ($virtGroupStaffs as $virtGroup => $virtStaffs) {
 			$this->grouplist[] = $virtGroup;
-			$this->groupselected[] = false;
 			$this->groupStaffs[] = $virtStaffs;
 
 			$groupindex = count($this->grouplist) - 1;
@@ -573,8 +569,6 @@ class staffPanel extends wizardPanel
 	}
 
 	function updateGroup ($groupindex, $selected) {
-		$this->groupselected[$groupindex] = $selected;
-
 		if ($selected)
 			$this->groupobject->SetSelection($groupindex);
 		else
