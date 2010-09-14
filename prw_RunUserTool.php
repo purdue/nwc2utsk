@@ -1284,6 +1284,7 @@ class mainDialog extends wxDialog
 	private $needsverify = false;
 	private $parmsneeded = false;
 	private $showchanges = false;
+	private $resultsback = false;
 
 	function __construct () {
 		parent::__construct(null, -1, "Run User Tool");
@@ -1392,6 +1393,7 @@ class mainDialog extends wxDialog
 				$this->fail("setupPage: unknown page: $page");
 		}
 
+		$this->resultsback = false;
 		if ($page != "editresults")
 			$this->needsverify = true;
 
@@ -1603,6 +1605,8 @@ class mainDialog extends wxDialog
 					// get results and display them, unless skipping applied results
 					if ($this->getResults($staffindex) || $this->showchanges)
 						$nextstate = "editresults";
+					else if ($this->resultsback)
+						$nextstate = "getresultsback";
 					else
 						$nextstate = "getresultsnext";
 
@@ -1634,7 +1638,7 @@ class mainDialog extends wxDialog
 						$staffindex = $this->staffsubset[$ExecuteIndex];
 						$this->SongData->UndoClipText($staffindex);
 
-						$this->showchanges = true;
+						$this->resultsback = true;
 						$nextstate = "getresults";
 					}
 					else
