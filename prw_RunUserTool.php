@@ -1401,6 +1401,8 @@ class mainDialog extends wxDialog
 	function __construct () {
 		parent::__construct(null, -1, "Run User Tool");
 
+		$this->SetIcons(new iconBundle());
+
 		$this->bitmap = new logoBitmap();
 		$this->bitmapHeight = $this->bitmap->GetHeight();
 
@@ -1996,6 +1998,32 @@ class logoBitmap extends wxBitmap
 
 		$wxImage = new wxImage($wxStream, wxBITMAP_TYPE_PNG);
 		parent::__construct($wxImage);
+	}
+}
+
+/*************************************************************************************************/
+
+// Embedded file code created by nwswEncodeFile.php
+define('MSTREAM_RUTICOBYERIC_ICO',
+	'eJztVr1u3DgQHkYHWDBwCAkW2c4ur6RA4HY7u9jer5HSxhZWZxkCTur8Bvcsfpwr19gFpI75hpRW1JoKguRSJdRK2uE3fxyOhkMkKKPbW0k8Pl8S/Y339XWg'.
+	'//tA9C/mpAz0X4Lonz/xxv9b3BVuQX94jC5pYVSBsarCiy+ewuP19RUzzv/IufDii6eYTo993lab1rYvS/iqrVZts4T3BvJ52y7hFeVtfbGI9xmE62zAt+He'.
+	'bvmPp/YrFhYTftzit93eDbjxoNmccCBH/zvhBHw14sftyYq/lReuLkacFcc45O+Dgx73np3hzwCpPOF3MxyhrdnBMvI/xt/y4H28/hg/QLkP7wLugNdfw+Fg'.
+	'G+s/s88OhnHu/xDlQ36Guzkuswh/P94Ex34ZN9qIchk/CGsHC0l8n1lrKV/EjdXWFmTbtrlhdUQzNsPi1nzs8WRAiuIqgnsqGKebkYY3WYRXmYF6c5qqQNFV'.
+	'JG5n4h3TNCnYn4uzN2LysLIFZswozrEAt7w5iQfnZ7GQWo4TUmaxdXevmbTyIpBvAnGJrDsTQiXFSOqZuJOsXlgaComw2UyccRLQUHgR49ceR4u32vKScl4M'.
+	'zZ1n/0WhQ8Be3CbsTGQd4ZQhnlauOiJt59aZgfVbXoRRJM7FmYGCASg6W3scA2bIeKPew/BxsMBKPr7HD6OLGjwJ3A2450nhZsKL78H3vEVhmBR+0ERZwOkp'.
+	'gfcCaeGDQCIBYwHChn1ILs/jnAZWyTyJVxTCBzPpiuC/Ao5/kYi/Gz4DNoA8SDIYn+awIs73f1DAynmJyMekC9j9MVGSa8Am8wKYRX5Ku8CJTqTwlGKTYKDA'.
+	'4Ecqzp2Pse8TdNLHviDvwEIQMXaQVTI69Zc6it/j1xjcZ15T6DXHPrP6sMRd/R99Zp1XbRvR67wuI7or182mdUdc3LaB3rW5p49+sisrNKb4cxfoftOgmUDn'.
+	'MdDukVubid/V3AhE9H3ZnvjRr3SaG9HJPg5Ylu8fw0fEXUDelG6vbgbYmidMq3CM9agbfHY+61C6GnzC/H6whs/kXmUedtpKrhud8tJoMXEmo0xA+VVQq1jv'.
+	'Tg+w63EwFxmKzlhLenQdSsipOHFfoYopsG++Oukpjopr4lSKesnnT1S7uGDJq4lutNUqLixcj01Uyw4aJ7mKKtdOFFKpx6fTxIPi+lVOHDWqjYd/WgJ/4+A8'.
+	'58p5TVOevy5yVz+W5/1jyKdmHULRbELQuibMd0O+79ZttwZpN+5Bvrgd2k2lnnqQiOSKSaRfofyJ9qy136u9KnxAezvsRK1UsFLLi5cfjvMXdSxD5Q=='
+	);
+
+class iconBundle extends nwc2gui_IconBundle
+{
+	function __construct () {
+		$wxStream = new nwc2gui_MemoryInStream(MSTREAM_RUTICOBYERIC_ICO, array("base64", "gz"));
+
+		parent::__construct($wxStream);
 	}
 }
 
