@@ -786,44 +786,6 @@ class _wxChoice extends wxChoice
 	}
 }
 
-class _wxSpinCtrl extends wxBoxSizer
-{
-	private $wxTextCtrl = null;
-	private $wxSpinButton = null;
-
-	function __construct ($parent, $id1, $id2) {
-		parent::__construct(wxHORIZONTAL);
-
-		$this->wxTextCtrl = new wxTextCtrl($parent, $id2);
-		$this->Add($this->wxTextCtrl);
-		$parent->Connect($id2, wxEVT_COMMAND_TEXT_UPDATED, array($this, "handleText"));
-
-		$this->wxSpinButton = new wxSpinButton($parent, $id1, wxDefaultPosition, wxDefaultSize, wxSP_HORIZONTAL);
-		$this->Add($this->wxSpinButton);
-		$parent->Connect($id1, wxEVT_SCROLL_THUMBTRACK, array($this, "handleSpin"));
-	}
-
-	function handleSpin () {
-		$this->wxTextCtrl->SetValue($this->wxSpinButton->GetValue());
-	}
-
-	function handleText () {
-		$this->wxSpinButton->SetValue(intval($this->wxTextCtrl->GetValue()));
-	}
-
-	function GetValue () {
-		return $this->wxSpinButton->GetValue();
-	}
-
-	function SetValue ($value) {
-		$this->wxTextCtrl->SetValue($value);
-	}
-
-	function SetRange ($min, $max) {
-		$this->wxSpinButton->SetRange($min, $max);
-	}
-}
-
 class parmPanel extends wizardPanel
 {
 	const prompt = "Select all of the parameter values to specify to the user tool:";
@@ -860,7 +822,7 @@ class parmPanel extends wizardPanel
 		foreach ($m[1] as $parm) {
 			if (preg_match('/([^=]*)=(.*)$/', $parm, $m2)) {
 				$statictext = new wxStaticText($this, $this->new_wxID(), $m2[1]);
-				$col1Sizer->Add($statictext, 0, wxALIGN_LEFT|wxTOP, 15);
+				$col1Sizer->Add($statictext, 0, wxALIGN_LEFT|wxTOP|wxBOTTOM, 9);
 
 				$selection = array_shift(self::$selections[$this->groupname][$this->toolname]);
 
@@ -877,9 +839,9 @@ class parmPanel extends wizardPanel
 						break;
 
 					case "#":
-						preg_match('/\[(\d+),(\d+)\]/', $m2[2], $m3);
+						preg_match('/\[([+-]?\d+),([+-]?\d+)\]/', $m2[2], $m3);
 
-						$parmObject = new _wxSpinCtrl($this, $this->new_wxID(), $this->new_wxID());
+						$parmObject = new wxSpinCtrl($this, $this->new_wxID());
 						$parmObject->SetRange($m3[1], $m3[2]);
 
 						if (!$selection)
@@ -903,7 +865,7 @@ class parmPanel extends wizardPanel
 
 				$parmObject->SetValue($selection);
 
-				$col2Sizer->Add($parmObject, 0, wxALIGN_LEFT|wxTOP, 10);
+				$col2Sizer->Add($parmObject, 0, wxALIGN_LEFT|wxTOP|wxBOTTOM, 5);
 				$this->parmObjects[] = $parmObject;
 			}
 		}
