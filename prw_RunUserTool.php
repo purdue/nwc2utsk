@@ -573,15 +573,17 @@ class staffPanel extends wizardPanel
 		}
 	}
 
+	function updateSelection ($object, $index, $selected) {
+		$method = ($selected ? "SetSelection" : "Deselect");
+		$object->$method($index);
+	}
+
 	function isNextValid () {
 		return in_array(true, $this->staffselected);
 	}
 
 	function updateGroup ($groupindex, $selected) {
-		if ($selected)
-			$this->groupobject->SetSelection($groupindex);
-		else
-			$this->groupobject->Deselect($groupindex);
+		$this->updateSelection($this->groupobject, $groupindex, $selected);
 	}
 
 	function handleSelectGroup ($event) {
@@ -610,11 +612,7 @@ class staffPanel extends wizardPanel
 
 	function updateStaff ($staffindex, $selected) {
 		$this->staffselected[$staffindex] = $selected;
-
-		if ($selected)
-			$this->staffobject->SetSelection($staffindex);
-		else
-			$this->staffobject->Deselect($staffindex);
+		$this->updateSelection($this->staffobject, $staffindex, $selected);
 	}
 
 	function handleSelectStaff ($event) {
