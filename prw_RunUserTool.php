@@ -516,13 +516,11 @@ class staffPanel extends wizardPanel
 		if ($virtGroupStaffs) {
 			$grouplist[] = str_repeat("=", 10);
 			$this->groupStaffs[] = array();
+	
+			$grouplist = array_merge($grouplist, array_keys($virtGroupStaffs));
+			$this->groupStaffs = array_merge($this->groupStaffs, array_values($virtGroupStaffs));
 		}
-
-		foreach ($virtGroupStaffs as $virtGroup => $virtStaffs) {
-			$grouplist[] = $virtGroup;
-			$this->groupStaffs[] = $virtStaffs;
-		}
-
+	
 		//--------------------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
@@ -577,13 +575,6 @@ class staffPanel extends wizardPanel
 		return in_array(true, $this->staffselected);
 	}
 
-	function handleSelectGroup ($event) {
-		$groupindex = $event->GetSelection();
-		$selected = $this->groupobject->IsSelected($groupindex);
-
-		$this->updateStaffs($this->groupStaffs[$groupindex], $selected);
-	}
-
 	function updateAllGroups () {
 		$selectedstaffs = array_keys($this->staffselected, true);
 
@@ -601,6 +592,13 @@ class staffPanel extends wizardPanel
 
 		$this->updateAllGroups();
 		$this->updateNextButton();
+	}
+
+	function handleSelectGroup ($event) {
+		$groupindex = $event->GetSelection();
+		$selected = $this->groupobject->IsSelected($groupindex);
+
+		$this->updateStaffs($this->groupStaffs[$groupindex], $selected);
 	}
 
 	function handleSelectStaff ($event) {
