@@ -535,7 +535,7 @@ class staffPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-					 nwc2gui_wxArray($grouplist), wxLB_MULTIPLE);
+					 new wxphp_ArrayString($grouplist), wxLB_MULTIPLE);
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
@@ -551,7 +551,7 @@ class staffPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-					 nwc2gui_wxArray($stafflist), wxLB_MULTIPLE);
+					 new wxphp_ArrayString($stafflist), wxLB_MULTIPLE);
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectStaff"));
@@ -831,7 +831,7 @@ class parmPanel extends wizardPanel
 						preg_match_all('/\|([^|]+)/', $m2[2], $m3);
 
 						$parmObject = new _wxChoice($this, $this->new_wxID());
-						$parmObject->Append(nwc2gui_wxArray($m3[1]));
+						$parmObject->Append(new wxphp_ArrayString($m3[1]));
 
 						if (!$selection)
 							$selection = reset($m3[1]);
@@ -1868,7 +1868,7 @@ define("LOGODATA",
 class logoBitmap extends wxBitmap
 {
 	function __construct () {
-		$wxStream = new nwc2gui_MemoryInStream(LOGODATA, array("base64"));
+		$wxStream = new wxphp_MemoryInputStream(LOGODATA, array("base64"));
 
 		$wxImage = new wxImage($wxStream, wxBITMAP_TYPE_PNG);
 		parent::__construct($wxImage);
@@ -1892,10 +1892,10 @@ define('MSTREAM_RUTICOBYERIC_ICO',
 	'58p5TVOevy5yVz+W5/1jyKdmHULRbELQuibMd0O+79ZttwZpN+5Bvrgd2k2lnnqQiOSKSaRfofyJ9qy136u9KnxAezvsRK1UsFLLi5cfjvMXdSxD5Q=='
 	);
 
-class iconBundle extends nwc2gui_IconBundle
+class iconBundle extends wxphp_IconBundle
 {
 	function __construct () {
-		$wxStream = new nwc2gui_MemoryInStream(MSTREAM_RUTICOBYERIC_ICO, array("base64", "gz"));
+		$wxStream = new wxphp_MemoryInputStream(MSTREAM_RUTICOBYERIC_ICO, array("base64", "gz"));
 
 		parent::__construct($wxStream);
 	}
