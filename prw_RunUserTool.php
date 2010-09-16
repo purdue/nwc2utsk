@@ -459,8 +459,10 @@ class staffPanel extends wizardPanel
 	private $SongData = null;
 
 	private $groupStaffs = array();
+	private $group2Staffs = array();
 
 	private $groupobject = null;
+	private $group2object = null;
 	private $staffobject = null;
 
 	private $staffselected = array();
@@ -513,20 +515,25 @@ class staffPanel extends wizardPanel
 				unset($virtGroupStaffs[$virtGroup]);
 		}
 
-		if ($virtGroupStaffs) {
-			$grouplist[] = str_repeat("=", 10);
-			$this->groupStaffs[] = array();
-
-			$grouplist = array_merge($grouplist, array_keys($virtGroupStaffs));
-			$this->groupStaffs = array_merge($this->groupStaffs, array_values($virtGroupStaffs));
-		}
+		$group2list = array_keys($virtGroupStaffs);
+		$this->group2Staffs = array_values($virtGroupStaffs);
 
 		//--------------------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
 		//-------------------------------------------------
-		// groups listbox
+		// groups listboxes
+
+		if ($group2list) {
+			$groupheight = 190 * count($grouplist) / (count($grouplist) + count($group2list));
+			$group2height = 190 - $groupheight;
+			$staffheight = 210;
+		}
+		else {
+			$groupheight = -1;
+			$staffheight = -1;
+		}
 
 		$colSizer = new wxBoxSizer(wxVERTICAL);
 		$rowSizer->Add($colSizer, 3);
@@ -534,12 +541,24 @@ class staffPanel extends wizardPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Groups:");
 		$colSizer->Add($statictext);
 
-		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
+		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $groupheight),
 					 new wxphp_ArrayString($grouplist), wxLB_MULTIPLE);
-		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
+		$colSizer->Add($listbox, 0, wxGROW|wxALIGN_LEFT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
 		$this->groupobject = $listbox;
+
+		if ($group2list) {
+			$statictext = new wxStaticText($this, $this->new_wxID(), "Built-in Groups:");
+			$colSizer->Add($statictext, 0, wxTOP, 8);
+
+			$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $group2height),
+					 	new wxphp_ArrayString($group2list), wxLB_MULTIPLE);
+			$colSizer->Add($listbox, 0, wxGROW|wxALIGN_LEFT);
+
+			$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup2"));
+			$this->group2object = $listbox;
+		}
 
 		//-------------------------------------------------
 		// staffs listbox
@@ -550,9 +569,9 @@ class staffPanel extends wizardPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Staffs:");
 		$colSizer->Add($statictext);
 
-		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
+		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $staffheight),
 					 new wxphp_ArrayString($stafflist), wxLB_MULTIPLE);
-		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
+		$colSizer->Add($listbox, 0, wxGROW|wxALIGN_RIGHT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectStaff"));
 		$this->staffobject = $listbox;
@@ -582,6 +601,11 @@ class staffPanel extends wizardPanel
 			$selected = ($groupstaffs && !array_diff($groupstaffs, $selectedstaffs));
 			$this->updateSelection($this->groupobject, $groupindex, $selected);
 		}
+
+		foreach ($this->group2Staffs as $groupindex => $groupstaffs) {
+			$selected = ($groupstaffs && !array_diff($groupstaffs, $selectedstaffs));
+			$this->updateSelection($this->group2object, $groupindex, $selected);
+		}
 	}
 
 	function updateStaffs ($staffsubset, $selected) {
@@ -599,6 +623,13 @@ class staffPanel extends wizardPanel
 		$selected = $this->groupobject->IsSelected($groupindex);
 
 		$this->updateStaffs($this->groupStaffs[$groupindex], $selected);
+	}
+
+	function handleSelectGroup2 ($event) {
+		$groupindex = $event->GetSelection();
+		$selected = $this->group2object->IsSelected($groupindex);
+
+		$this->updateStaffs($this->group2Staffs[$groupindex], $selected);
 	}
 
 	function handleSelectStaff ($event) {
