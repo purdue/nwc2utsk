@@ -459,13 +459,13 @@ class staffPanel extends wizardPanel
 	private $SongData = null;
 
 	private $groupStaffs = array();
-	private $group2Staffs = array();
-
 	private $groupobject = null;
+
+	private $group2Staffs = array();
 	private $group2object = null;
-	private $staffobject = null;
 
 	private $staffselected = array();
+	private $staffobject = null;
 
 	function __construct ($parent, $nextButton, $SongData, $staffsubset) {
 		global $builtinsubsets;
@@ -491,7 +491,6 @@ class staffPanel extends wizardPanel
 			$this->staffselected[] = false;
 
 			$groupindex = array_search($groupname, $grouplist);
-
 			$this->groupStaffs[$groupindex][] = $staffindex;
 
 			foreach ($builtinsubsets as $subsetname => $subsetcond) {
@@ -518,7 +517,7 @@ class staffPanel extends wizardPanel
 		$group2list = array_keys($virtGroupStaffs);
 		$this->group2Staffs = array_values($virtGroupStaffs);
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
@@ -542,7 +541,7 @@ class staffPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $groupheight),
-					 new wxphp_ArrayString($grouplist), wxLB_MULTIPLE);
+					new wxphp_ArrayString($grouplist), wxLB_MULTIPLE);
 		$colSizer->Add($listbox, 0, wxGROW|wxALIGN_LEFT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
@@ -553,7 +552,7 @@ class staffPanel extends wizardPanel
 			$colSizer->Add($statictext, 0, wxTOP, 8);
 
 			$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $group2height),
-					 	new wxphp_ArrayString($group2list), wxLB_MULTIPLE);
+						new wxphp_ArrayString($group2list), wxLB_MULTIPLE);
 			$colSizer->Add($listbox, 0, wxGROW|wxALIGN_LEFT);
 
 			$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup2"));
@@ -570,13 +569,13 @@ class staffPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $staffheight),
-					 new wxphp_ArrayString($stafflist), wxLB_MULTIPLE);
+					new wxphp_ArrayString($stafflist), wxLB_MULTIPLE);
 		$colSizer->Add($listbox, 0, wxGROW|wxALIGN_RIGHT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectStaff"));
 		$this->staffobject = $listbox;
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$this->doFit();
 
@@ -669,7 +668,7 @@ class toolPanel extends wizardPanel
 		$this->usertools = $usertools;
 		$this->grouplist = array_keys($this->usertools);
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
@@ -703,7 +702,7 @@ class toolPanel extends wizardPanel
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectTool"));
 		$this->toolobject = $listbox;
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$this->groupobject->Set($this->wxArrayString($this->grouplist, 20));
 
@@ -838,7 +837,7 @@ class parmPanel extends wizardPanel
 		if (!isset(self::$selections[$this->groupname][$this->toolname]))
 			self::$selections[$this->groupname][$this->toolname] = array();
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
@@ -901,7 +900,7 @@ class parmPanel extends wizardPanel
 			}
 		}
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$this->doFit();
 
@@ -938,7 +937,7 @@ class verifyPanel extends wizardPanel
 		foreach ($staffsubset as $staffindex)
 			$staffnames[] = $SongData->StaffData[$staffindex]->HeaderValues["AddStaff"]["Name"];
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
@@ -949,7 +948,7 @@ class verifyPanel extends wizardPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), strtr($fullcommand, " ", "\n"));
 		$rowSizer->Add($statictext);
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
@@ -959,7 +958,7 @@ class verifyPanel extends wizardPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), $this->implodewithwrap(", ", $staffnames, 60, ",\n"));
 		$rowSizer->Add($statictext);
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
@@ -969,7 +968,7 @@ class verifyPanel extends wizardPanel
 		$checkbox->SetValue($check);
 		$this->checkbox = $checkbox;
 
-		//--------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$this->doFit();
 	}
@@ -1243,7 +1242,7 @@ class resultsPanel extends wizardPanel
 
 		$this->textChoices = array_keys($this->text);
 
-		//-----------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
@@ -1262,7 +1261,7 @@ class resultsPanel extends wizardPanel
 				$radioButton->SetValue(true);
 		}
 
-		//-----------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow();
 
@@ -1272,7 +1271,7 @@ class resultsPanel extends wizardPanel
 
 		$this->textDisp = $textDisp;
 
-		//-----------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$this->doFit();
 
@@ -1330,7 +1329,7 @@ class mainDialog extends wxDialog
 		$this->dialogSizer = new wxBoxSizer(wxVERTICAL);
 		$this->SetSizer($this->dialogSizer);
 
-		//-----------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		// first row is RUT logo and page panel
 
@@ -1343,7 +1342,7 @@ class mainDialog extends wxDialog
 		$this->pagePanel = new wxPanel($this, ++$wxID, wxDefaultPosition, new wxSize(RUT_PAGEWIDTH, -1));
 		$rowSizer->Add($this->pagePanel, 0, wxGROW);
 
-		//-----------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		// second row is button set
 
@@ -1367,7 +1366,7 @@ class mainDialog extends wxDialog
 		$rowSizer->Add($this->cancelButton, 0, wxALIGN_RIGHT);
 		$this->Connect(wxID_CANCEL, wxEVT_COMMAND_BUTTON_CLICKED, array($this, "DoCancel"));
 
-		//-----------------------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 
 		$this->dialogSizer->Fit($this);
 
