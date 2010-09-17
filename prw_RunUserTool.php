@@ -452,6 +452,49 @@ class wizardPanel extends wxPanel
 
 /*************************************************************************************************/
 
+class wxCheckBoxPanel extends wxScrolledWindow
+{
+	private $checkboxes = array();
+	private $callback = null;
+
+	function __construct ($parent, $id, $pos, $size, $list) {
+		parent::__construct($parent, $id, $pos, $size, wxBORDER_SUNKEN);
+
+		$wxID = wxID_HIGHEST;
+
+		$panelSizer = new wxBoxSizer(wxVERTICAL);
+		$this->SetSizer($panelSizer);
+
+		foreach ($list as $item) {
+			$checkbox = new wxCheckBox($this, ++$wxID, $item);
+			$panelSizer->Add($checkbox);
+
+			$this->checkboxes[] = $checkbox;
+		}
+
+		$this->Connect(wxEVT_COMMAND_CHECKBOX_CLICKED, array($this, "handleCheckBoxClicked"));
+
+		// if this is uncommented to activate scrolling, window shrinks?!
+		//$this->SetScrollRate(1, 1);
+		$panelSizer->FitInside($this);
+	}
+
+	function Register ($callback) {
+		$this->callback = $callback;
+	}
+
+	function handleCheckBoxClicked ($event) {
+		$index = $event->GetId() - wxID_HIGHEST - 1;
+		$selected = $this->checkboxes[$index]->GetValue();
+
+		call_user_func($this->callback, $index, $selected);
+	}
+
+	function SetValue ($index, $selected) {
+		$this->checkboxes[$index]->SetValue($selected);
+	}
+}
+
 class staffPanel extends wizardPanel
 {
 	const prompt = "Select all of the staff parts that you want to send to a user tool:";
@@ -522,7 +565,7 @@ class staffPanel extends wizardPanel
 		$rowSizer = $this->newRow();
 
 		//-------------------------------------------------
-		// groups listboxes
+		// groups checkboxpanels
 
 		if ($group2list) {
 			$groupheight = 190 * count($grouplist) / (count($grouplist) + count($group2list));
@@ -540,27 +583,25 @@ class staffPanel extends wizardPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Groups:");
 		$colSizer->Add($statictext);
 
-		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $groupheight),
-					new wxphp_ArrayString($grouplist), wxLB_MULTIPLE);
-		$colSizer->Add($listbox, 0, wxGROW|wxALIGN_LEFT);
+		$checkboxpanel = new wxCheckBoxPanel($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $groupheight), $grouplist);
+		$colSizer->Add($checkboxpanel, 0, wxGROW|wxALIGN_LEFT);
 
-		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
-		$this->groupobject = $listbox;
+		$checkboxpanel->Register(array($this, "handleSelectGroup"));
+		$this->groupobject = $checkboxpanel;
 
 		if ($group2list) {
 			$statictext = new wxStaticText($this, $this->new_wxID(), "Built-in Groups:");
 			$colSizer->Add($statictext, 0, wxTOP, 8);
 
-			$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $group2height),
-						new wxphp_ArrayString($group2list), wxLB_MULTIPLE);
-			$colSizer->Add($listbox, 0, wxGROW|wxALIGN_LEFT);
+			$checkboxpanel = new wxCheckBoxPanel($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $group2height), $group2list);
+			$colSizer->Add($checkboxpanel, 0, wxGROW|wxALIGN_LEFT);
 
-			$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup2"));
-			$this->group2object = $listbox;
+			$checkboxpanel->Register(array($this, "handleSelectGroup2"));
+			$this->group2object = $checkboxpanel;
 		}
 
 		//-------------------------------------------------
-		// staffs listbox
+		// staffs checkboxpanels
 
 		$colSizer = new wxBoxSizer(wxVERTICAL);
 		$rowSizer->Add($colSizer, 5, wxLEFT, 10);
@@ -568,12 +609,11 @@ class staffPanel extends wizardPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Staffs:");
 		$colSizer->Add($statictext);
 
-		$listbox = new wxListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $staffheight),
-					new wxphp_ArrayString($stafflist), wxLB_MULTIPLE);
-		$colSizer->Add($listbox, 0, wxGROW|wxALIGN_RIGHT);
+		$checkboxpanel = new wxCheckBoxPanel($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $staffheight), $stafflist);
+		$colSizer->Add($checkboxpanel, 0, wxGROW|wxALIGN_RIGHT);
 
-		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectStaff"));
-		$this->staffobject = $listbox;
+		$checkboxpanel->Register(array($this, "handleSelectStaff"));
+		$this->staffobject = $checkboxpanel;
 
 		//------------------------------------------------------------------------
 
@@ -582,11 +622,6 @@ class staffPanel extends wizardPanel
 		// reselect any staffs previously selected
 		if ($staffsubset)
 			$this->updateStaffs($staffsubset, true);
-	}
-
-	function updateSelection ($object, $index, $selected) {
-		$method = ($selected ? "SetSelection" : "Deselect");
-		$object->$method($index);
 	}
 
 	function isNextValid () {
@@ -598,43 +633,34 @@ class staffPanel extends wizardPanel
 
 		foreach ($this->groupStaffs as $groupindex => $groupstaffs) {
 			$selected = ($groupstaffs && !array_diff($groupstaffs, $selectedstaffs));
-			$this->updateSelection($this->groupobject, $groupindex, $selected);
+			$this->groupobject->SetValue($groupindex, $selected);
 		}
 
 		foreach ($this->group2Staffs as $groupindex => $groupstaffs) {
 			$selected = ($groupstaffs && !array_diff($groupstaffs, $selectedstaffs));
-			$this->updateSelection($this->group2object, $groupindex, $selected);
+			$this->group2object->SetValue($groupindex, $selected);
 		}
 	}
 
 	function updateStaffs ($staffsubset, $selected) {
 		foreach ($staffsubset as $staffindex) {
 			$this->staffselected[$staffindex] = $selected;
-			$this->updateSelection($this->staffobject, $staffindex, $selected);
+			$this->staffobject->SetValue($staffindex, $selected);
 		}
 
 		$this->updateAllGroups();
 		$this->updateNextButton();
 	}
 
-	function handleSelectGroup ($event) {
-		$groupindex = $event->GetSelection();
-		$selected = $this->groupobject->IsSelected($groupindex);
-
+	function handleSelectGroup ($groupindex, $selected) {
 		$this->updateStaffs($this->groupStaffs[$groupindex], $selected);
 	}
 
-	function handleSelectGroup2 ($event) {
-		$groupindex = $event->GetSelection();
-		$selected = $this->group2object->IsSelected($groupindex);
-
+	function handleSelectGroup2 ($groupindex, $selected) {
 		$this->updateStaffs($this->group2Staffs[$groupindex], $selected);
 	}
 
-	function handleSelectStaff ($event) {
-		$staffindex = $event->GetSelection();
-		$selected = $this->staffobject->IsSelected($staffindex);
-
+	function handleSelectStaff ($staffindex, $selected) {
 		$this->updateStaffs(array($staffindex), $selected);
 	}
 
