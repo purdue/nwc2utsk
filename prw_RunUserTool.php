@@ -563,7 +563,7 @@ class staffPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, wxDefaultSize,
-					 nwc2gui_wxArray($this->stafflist), wxLB_MULTIPLE);
+					 nwc2gui_wxArray($this->stafflist));
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, array($this, "handleSelectStaff"));
