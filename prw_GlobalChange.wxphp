@@ -1728,7 +1728,7 @@ class logoBitmap extends wxBitmap
 /*************************************************************************************************/
 
 // Embedded file code created by nwswEncodeFile.php
-define('MSTREAM_GCICOBYERIC_ICO',
+define('MSTREAM_GCICO_ICO',
 	'eJztVr1u3DgQHkYHWDBwCAkW2c4ur6RA4HY7u9jer5HSxhZWZxkCTur8Bvcsfpwr19gFpI75hpRW1JoKguRSJdRK2uE3fxyOhkMkKKPbW0k8Pl8S/Y339XWg'.
 	'//tA9C/mpAz0X4Lonz/xxv9b3BVuQX94jC5pYVSBsarCiy+ewuP19RUzzv/IufDii6eYTo993lab1rYvS/iqrVZts4T3BvJ52y7hFeVtfbGI9xmE62zAt+He'.
 	'bvmPp/YrFhYTftzit93eDbjxoNmccCBH/zvhBHw14sftyYq/lReuLkacFcc45O+Dgx73np3hzwCpPOF3MxyhrdnBMvI/xt/y4H28/hg/QLkP7wLugNdfw+Fg'.
@@ -1745,7 +1745,7 @@ define('MSTREAM_GCICOBYERIC_ICO',
 class iconBundle extends wxphp_IconBundle
 {
 	function __construct () {
-		$wxStream = new wxphp_MemoryInputStream(MSTREAM_GCICOBYERIC_ICO, array("base64", "gz"));
+		$wxStream = new wxphp_MemoryInputStream(MSTREAM_GCICO_ICO, array("base64", "gz"));
 
 		parent::__construct($wxStream);
 	}
