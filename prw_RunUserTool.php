@@ -584,10 +584,6 @@ class staffPanel extends wizardPanel
 			$this->updateStaffs($staffsubset, true);
 	}
 
-	function updateSelection ($object, $index, $selected) {
-		$object->Check($index, $selected);
-	}
-
 	function isNextValid () {
 		return in_array(true, $this->staffselected);
 	}
@@ -597,19 +593,19 @@ class staffPanel extends wizardPanel
 
 		foreach ($this->groupStaffs as $groupindex => $groupstaffs) {
 			$selected = ($groupstaffs && !array_diff($groupstaffs, $selectedstaffs));
-			$this->updateSelection($this->groupobject, $groupindex, $selected);
+			$this->groupobject->Check($groupindex, $selected);
 		}
 
 		foreach ($this->group2Staffs as $groupindex => $groupstaffs) {
 			$selected = ($groupstaffs && !array_diff($groupstaffs, $selectedstaffs));
-			$this->updateSelection($this->group2object, $groupindex, $selected);
+			$this->group2object->Check($groupindex, $selected);
 		}
 	}
 
 	function updateStaffs ($staffsubset, $selected) {
 		foreach ($staffsubset as $staffindex) {
 			$this->staffselected[$staffindex] = $selected;
-			$this->updateSelection($this->staffobject, $staffindex, $selected);
+			$this->staffobject->Check($staffindex, $selected);
 		}
 
 		$this->updateAllGroups();
