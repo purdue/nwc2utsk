@@ -1290,8 +1290,6 @@ class mainDialog extends wxDialog
 	private $usertools = array();
 	private $SongData = null;
 
-	private $bitmap = null;
-
 	private $dialogSizer = null;
 	private $currentPanel = null;
 	private $pagePanel = null;
@@ -1314,10 +1312,11 @@ class mainDialog extends wxDialog
 	function __construct () {
 		parent::__construct(null, -1, "Run User Tool");
 
-		$this->SetIcons(new iconBundle());
+		$bundle = new iconBundle();
+		$this->SetIcons($bundle);
 
-		$this->bitmap = new logoBitmap();
-		$this->bitmapHeight = $this->bitmap->GetHeight();
+		$bitmap = new logoBitmap();
+		$this->bitmapHeight = $bitmap->GetHeight();
 
 		$wxID = wxID_HIGHEST;
 
@@ -1325,21 +1324,19 @@ class mainDialog extends wxDialog
 		$this->SetSizer($this->dialogSizer);
 
 		//------------------------------------------------------------------------
-
 		// first row is RUT logo and page panel
 
 		$rowSizer = new wxBoxSizer(wxHORIZONTAL);
 		$this->dialogSizer->Add($rowSizer, 0, wxGROW);
 
-		$staticbitmap = new wxStaticBitmap($this, ++$wxID, $this->bitmap);
+		$staticbitmap = new wxStaticBitmap($this, ++$wxID, $bitmap);
 		$rowSizer->Add($staticbitmap);
 
 		$this->pagePanel = new wxPanel($this, ++$wxID, wxDefaultPosition, new wxSize(RUT_PAGEWIDTH, -1));
 		$rowSizer->Add($this->pagePanel, 0, wxGROW);
 
 		//------------------------------------------------------------------------
-
-		// second row is button set
+		// second row is status msg and button set
 
 		$rowSizer = new wxStaticBoxSizer(wxHORIZONTAL, $this);
 		$this->dialogSizer->Add($rowSizer, 0, wxGROW);
@@ -1723,9 +1720,9 @@ class mainDialog extends wxDialog
 
 		list($property, $value) = $builtinsubsets[$subsetname];
 
-		foreach ($this->SongData->StaffData as $index => $StaffData)
+		foreach ($this->SongData->StaffData as $staffindex => $StaffData)
 			if (!$property || ($StaffData->HeaderValues["StaffProperties"][$property] == $value))
-				$staffsubset[] = $index;
+				$staffsubset[] = $staffindex;
 
 		return $staffsubset;
 	}
