@@ -567,14 +567,15 @@ class ParseStaff {
 
 class wizardPanel extends wxPanel
 {
+	static $parent = null;
 	static $nextButton = null;
 	private $panelSizer = null;
 
 	private $prompt = "";
 	private $wxID = wxID_HIGHEST;
 
-	function __construct ($parent, $prompt) {
-		parent::__construct($parent);
+	function __construct ($prompt) {
+		parent::__construct(self::$parent);
 
 		$this->updateNextButton();
 
@@ -644,10 +645,10 @@ class staffPanel extends wizardPanel
 	private $staffselected = array();
 	private $staffobject = null;
 
-	function __construct ($parent, $SongData, $staffsubset) {
+	function __construct ($SongData, $staffsubset) {
 		global $builtinsubsets;
 
-		parent::__construct($parent, self::prompt);
+		parent::__construct(self::prompt);
 
 		$this->SongData = $SongData;
 		$virtGroupStaffs = array_fill_keys(array_keys($builtinsubsets), array());
@@ -845,8 +846,8 @@ class searchPanel extends wizardPanel
 
 	private static $selections = array();
 
-	function __construct ($parent, $SongData, $staffsubset, $searchparms) {
-		parent::__construct($parent, self::prompt);
+	function __construct ($SongData, $staffsubset, $searchparms) {
+		parent::__construct(self::prompt);
 
 		$this->SongData = $SongData;
 		$this->staffsubset = $staffsubset;
@@ -1181,6 +1182,7 @@ class mainDialog extends wxDialog
 
 		$this->pagePanel = new wxPanel($this, ++$wxID, wxDefaultPosition, new wxSize(GC_PAGEWIDTH, -1));
 		$rowSizer->Add($this->pagePanel, 0, wxGROW);
+		wizardPanel::$parent = $this->pagePanel;
 
 		//------------------------------------------------------------------------
 		// second row is status msg and button set
@@ -1236,32 +1238,32 @@ class mainDialog extends wxDialog
 		switch ($page) {
 			case "editstaffsubset":
 				$this->setupCtrlPanel("hidden", "inactive", "active", "");
-				$this->currentPanel = new staffPanel($this->pagePanel, $this->SongData, $this->staffsubset);
+				$this->currentPanel = new staffPanel($this->SongData, $this->staffsubset);
 				break;
 
 			case "editsearchparms":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new searchPanel($this->pagePanel, $this->SongData, $this->staffsubset, $this->searchparms);
+				$this->currentPanel = new searchPanel($this->SongData, $this->staffsubset, $this->searchparms);
 				break;
 
 			case "editinstruction":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new instructPanel($this->pagePanel, $this->instruction);
+				$this->currentPanel = new instructPanel($this->instruction);
 				break;
 
 			case "editchangeparms":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new changePanel($this->pagePanel, $this->SongData, $this->changeparms);
+				$this->currentPanel = new changePanel($this->SongData, $this->changeparms);
 				break;
 
 			case "editverification":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new verifyPanel($this->pagePanel, $this->SongData, $this->staffsubset, $this->showsummary);
+				$this->currentPanel = new verifyPanel($this->SongData, $this->staffsubset, $this->showsummary);
 				break;
 
 			case "editresults":
 				$this->setupCtrlPanel("active", "inactive", "active", null);
-				$this->currentPanel = new resultsPanel($this->pagePanel, $this->instructresults, $this->bitmapHeight);
+				$this->currentPanel = new resultsPanel($this->instructresults, $this->bitmapHeight);
 				break;
 
 			default:

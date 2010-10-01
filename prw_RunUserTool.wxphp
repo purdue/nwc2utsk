@@ -401,13 +401,14 @@ class NWC2UserTools {
 
 class wizardPanel extends wxPanel
 {
+	static $parent = null;
 	static $nextButton = null;
 	private $panelSizer = null;
 
 	private $wxID = wxID_HIGHEST;
 
-	function __construct ($parent, $prompt) {
-		parent::__construct($parent);
+	function __construct ($prompt) {
+		parent::__construct(self::$parent);
 
 		$this->updateNextButton();
 
@@ -466,10 +467,10 @@ class staffPanel extends wizardPanel
 	private $staffselected = array();
 	private $staffobject = null;
 
-	function __construct ($parent, $SongData, $staffsubset) {
+	function __construct ($SongData, $staffsubset) {
 		global $builtinsubsets;
 
-		parent::__construct($parent, self::prompt);
+		parent::__construct(self::prompt);
 
 		$this->SongData = $SongData;
 		$virtGroupStaffs = array_fill_keys(array_keys($builtinsubsets), array());
@@ -656,8 +657,8 @@ class toolPanel extends wizardPanel
 
 	private static $selections = array();
 
-	function __construct ($parent, $usertools, $usertool) {
-		parent::__construct($parent, self::prompt);
+	function __construct ($usertools, $usertool) {
+		parent::__construct(self::prompt);
 
 		$this->usertools = $usertools;
 		$this->grouplist = array_keys($this->usertools);
@@ -822,8 +823,8 @@ class parmPanel extends wizardPanel
 
 	private static $selections = array();
 
-	function __construct ($parent, $usertools, $usertool) {
-		parent::__construct($parent, self::prompt);
+	function __construct ($usertools, $usertool) {
+		parent::__construct(self::prompt);
 
 		list($this->groupname, $this->toolname) = $usertool;
 		$this->command = $usertools[$this->groupname][$this->toolname]["command"];
@@ -923,8 +924,8 @@ class verifyPanel extends wizardPanel
 {
 	const prompt = "Verify that the user tool command should be run against the staff parts:";
 
-	function __construct ($parent, $SongData, $staffsubset, $fullcommand, $check) {
-		parent::__construct($parent, self::prompt);
+	function __construct ($SongData, $staffsubset, $fullcommand, $check) {
+		parent::__construct(self::prompt);
 
 		$staffnames = array();
 
@@ -1183,8 +1184,8 @@ class resultsPanel extends wizardPanel
 	private $radiobuttonbaseid;
 	private $textDisp;
 
-	function __construct ($parent, $execResults, $panelHeight) {
-		parent::__construct($parent, self::prompt);
+	function __construct ($execResults, $panelHeight) {
+		parent::__construct(self::prompt);
 
 		extract($execResults);
 
@@ -1333,6 +1334,7 @@ class mainDialog extends wxDialog
 
 		$this->pagePanel = new wxPanel($this, ++$wxID, wxDefaultPosition, new wxSize(RUT_PAGEWIDTH, -1));
 		$rowSizer->Add($this->pagePanel, 0, wxGROW);
+		wizardPanel::$parent = $this->pagePanel;
 
 		//------------------------------------------------------------------------
 		// second row is status msg and button set
@@ -1388,27 +1390,27 @@ class mainDialog extends wxDialog
 		switch ($page) {
 			case "editstaffsubset":
 				$this->setupCtrlPanel("hidden", "inactive", "active", "");
-				$this->currentPanel = new staffPanel($this->pagePanel, $this->SongData, $this->staffsubset);
+				$this->currentPanel = new staffPanel($this->SongData, $this->staffsubset);
 				break;
 
 			case "editusertool":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new toolPanel($this->pagePanel, $this->usertools, $this->usertool);
+				$this->currentPanel = new toolPanel($this->usertools, $this->usertool);
 				break;
 
 			case "editfullcommand":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new parmPanel($this->pagePanel, $this->usertools, $this->usertool);
+				$this->currentPanel = new parmPanel($this->usertools, $this->usertool);
 				break;
 
 			case "editverification":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new verifyPanel($this->pagePanel, $this->SongData, $this->staffsubset, $this->fullcommand, $this->showchanges);
+				$this->currentPanel = new verifyPanel($this->SongData, $this->staffsubset, $this->fullcommand, $this->showchanges);
 				break;
 
 			case "editresults":
 				$this->setupCtrlPanel("active", "inactive", "active", null);
-				$this->currentPanel = new resultsPanel($this->pagePanel, $this->execresults, $this->bitmapHeight);
+				$this->currentPanel = new resultsPanel($this->execresults, $this->bitmapHeight);
 				break;
 
 			default:
