@@ -402,6 +402,7 @@ class NWC2UserTools {
 class wizardPanel extends wxPanel
 {
 	static $parent = null;
+	static $height = null;
 	static $nextButton = null;
 	private $panelSizer = null;
 
@@ -1184,7 +1185,7 @@ class resultsPanel extends wizardPanel
 	private $radiobuttonbaseid;
 	private $textDisp;
 
-	function __construct ($execResults, $panelHeight) {
+	function __construct ($execResults) {
 		parent::__construct(self::prompt);
 
 		extract($execResults);
@@ -1260,7 +1261,7 @@ class resultsPanel extends wizardPanel
 
 		$rowSizer = $this->newRow();
 
-		$textDisp = new wxTextCtrl($this, $this->new_wxID(), "", wxDefaultPosition, new wxSize(-1, $panelHeight - 85),
+		$textDisp = new wxTextCtrl($this, $this->new_wxID(), "", wxDefaultPosition, new wxSize(-1, parent::$height - 85),
 							wxTE_READONLY|wxTE_MULTILINE|wxTE_DONTWRAP);
 		$rowSizer->Add($textDisp, 1);
 
@@ -1316,7 +1317,7 @@ class mainDialog extends wxDialog
 		$this->SetIcons($bundle);
 
 		$bitmap = new logoBitmap();
-		$this->bitmapHeight = $bitmap->GetHeight();
+		wizardPanel::$height = $bitmap->GetHeight();
 
 		$wxID = wxID_HIGHEST;
 
@@ -1410,7 +1411,7 @@ class mainDialog extends wxDialog
 
 			case "editresults":
 				$this->setupCtrlPanel("active", "inactive", "active", null);
-				$this->currentPanel = new resultsPanel($this->execresults, $this->bitmapHeight);
+				$this->currentPanel = new resultsPanel($this->execresults);
 				break;
 
 			default:

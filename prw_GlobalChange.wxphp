@@ -568,6 +568,7 @@ class ParseStaff {
 class wizardPanel extends wxPanel
 {
 	static $parent = null;
+	static $height = null;
 	static $nextButton = null;
 	private $panelSizer = null;
 
@@ -1164,7 +1165,7 @@ class mainDialog extends wxDialog
 		$this->SetIcons($bundle);
 
 		$bitmap = new logoBitmap();
-		$this->bitmapHeight = $bitmap->GetHeight();
+		wizardPanel::$height = $bitmap->GetHeight();
 
 		$wxID = wxID_HIGHEST;
 
@@ -1263,7 +1264,7 @@ class mainDialog extends wxDialog
 
 			case "editresults":
 				$this->setupCtrlPanel("active", "inactive", "active", null);
-				$this->currentPanel = new resultsPanel($this->instructresults, $this->bitmapHeight);
+				$this->currentPanel = new resultsPanel($this->instructresults);
 				break;
 
 			default:
