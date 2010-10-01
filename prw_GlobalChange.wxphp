@@ -567,16 +567,15 @@ class ParseStaff {
 
 class wizardPanel extends wxPanel
 {
-	private $nextButton = null;
+	static $nextButton = null;
 	private $panelSizer = null;
 
 	private $prompt = "";
 	private $wxID = wxID_HIGHEST;
 
-	function __construct ($parent, $nextButton, $prompt) {
+	function __construct ($parent, $prompt) {
 		parent::__construct($parent);
 
-		$this->nextButton = $nextButton;
 		$this->updateNextButton();
 
 		$this->panelSizer = new wxBoxSizer(wxVERTICAL);
@@ -605,7 +604,7 @@ class wizardPanel extends wxPanel
 
 	// call this when the validity of the next button may have changed
 	final protected function updateNextButton () {
-		$this->nextButton->Enable($this->isNextValid());
+		self::$nextButton->Enable($this->isNextValid());
 	}
 
 	final protected function newRow () {
@@ -645,10 +644,10 @@ class staffPanel extends wizardPanel
 	private $staffselected = array();
 	private $staffobject = null;
 
-	function __construct ($parent, $nextButton, $SongData, $staffsubset) {
+	function __construct ($parent, $SongData, $staffsubset) {
 		global $builtinsubsets;
 
-		parent::__construct($parent, $nextButton, self::prompt);
+		parent::__construct($parent, self::prompt);
 
 		$this->SongData = $SongData;
 		$virtGroupStaffs = array_fill_keys(array_keys($builtinsubsets), array());
@@ -846,8 +845,8 @@ class searchPanel extends wizardPanel
 
 	private static $selections = array();
 
-	function __construct ($parent, $nextButton, $SongData, $staffsubset, $searchparms) {
-		parent::__construct($parent, $nextButton, self::prompt);
+	function __construct ($parent, $SongData, $staffsubset, $searchparms) {
+		parent::__construct($parent, self::prompt);
 
 		$this->SongData = $SongData;
 		$this->staffsubset = $staffsubset;
@@ -1201,6 +1200,7 @@ class mainDialog extends wxDialog
 		$this->nextButton = new wxButton($this, ++$wxID, "Next >");
 		$rowSizer->Add($this->nextButton, 0, wxRIGHT, 25);
 		$this->Connect($wxID, wxEVT_COMMAND_BUTTON_CLICKED, array($this, "DoNext"));
+		wizardPanel::$nextButton = $this->nextButton;
 
 		$this->cancelButton = new wxButton($this, wxID_CANCEL);
 		$rowSizer->Add($this->cancelButton, 0, wxALIGN_RIGHT);
@@ -1236,32 +1236,32 @@ class mainDialog extends wxDialog
 		switch ($page) {
 			case "editstaffsubset":
 				$this->setupCtrlPanel("hidden", "inactive", "active", "");
-				$this->currentPanel = new staffPanel($this->pagePanel, $this->nextButton, $this->SongData, $this->staffsubset);
+				$this->currentPanel = new staffPanel($this->pagePanel, $this->SongData, $this->staffsubset);
 				break;
 
 			case "editsearchparms":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new searchPanel($this->pagePanel, $this->nextButton, $this->SongData, $this->staffsubset, $this->searchparms);
+				$this->currentPanel = new searchPanel($this->pagePanel, $this->SongData, $this->staffsubset, $this->searchparms);
 				break;
 
 			case "editinstruction":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new instructPanel($this->pagePanel, $this->nextButton, $this->instruction);
+				$this->currentPanel = new instructPanel($this->pagePanel, $this->instruction);
 				break;
 
 			case "editchangeparms":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new changePanel($this->pagePanel, $this->nextButton, $this->SongData, $this->changeparms);
+				$this->currentPanel = new changePanel($this->pagePanel, $this->SongData, $this->changeparms);
 				break;
 
 			case "editverification":
 				$this->setupCtrlPanel("active", "inactive", "active", "");
-				$this->currentPanel = new verifyPanel($this->pagePanel, $this->nextButton, $this->SongData, $this->staffsubset, $this->showsummary);
+				$this->currentPanel = new verifyPanel($this->pagePanel, $this->SongData, $this->staffsubset, $this->showsummary);
 				break;
 
 			case "editresults":
 				$this->setupCtrlPanel("active", "inactive", "active", null);
-				$this->currentPanel = new resultsPanel($this->pagePanel, $this->nextButton, $this->instructresults, $this->bitmapHeight);
+				$this->currentPanel = new resultsPanel($this->pagePanel, $this->instructresults, $this->bitmapHeight);
 				break;
 
 			default:
