@@ -86,8 +86,6 @@ require_once("lib/nwc2clips.inc");
 require_once("lib/nwc2config.inc");
 require_once("lib/nwc2gui.inc");
 
-define("RUT_PAGEWIDTH", 400);
-
 $builtinsubsets = array(
 	"all" => null,
 	"visible" => array("Visible", "Y"),
@@ -402,23 +400,21 @@ class NWC2UserTools {
 class wizardPanel extends wxScrolledWindow
 {
 	static $parent = null;
-	static $height = null;
+	static $size = null;
 	static $nextButton = null;
 	private $panelSizer = null;
 
 	private $wxID = wxID_HIGHEST;
 
 	function __construct ($prompt) {
-		parent::__construct(self::$parent, -1, wxDefaultPosition, new wxSize(RUT_PAGEWIDTH, self::$height));
+		parent::__construct(self::$parent, -1, wxDefaultPosition, self::$size);
 
 		$this->updateNextButton();
 
 		$this->panelSizer = new wxBoxSizer(wxVERTICAL);
 		$this->SetSizer($this->panelSizer);
 
-		// create prompt field at maximum panel size, to force out other fields
-		$statictext = new wxStaticText($this, $this->new_wxID(), $prompt, wxDefaultPosition,
-						new wxSize(RUT_PAGEWIDTH - 20, -1));
+		$statictext = new wxStaticText($this, $this->new_wxID(), $prompt);
 		$this->panelSizer->Add($statictext, 0, wxALL, 10);
 	}
 
@@ -1323,7 +1319,7 @@ class mainDialog extends wxDialog
 		$this->SetIcons($bundle);
 
 		$bitmap = new logoBitmap();
-		wizardPanel::$height = $bitmap->GetHeight();
+		wizardPanel::$size = new wxSize(400, $bitmap->GetHeight());
 
 		$wxID = wxID_HIGHEST;
 
@@ -1339,7 +1335,7 @@ class mainDialog extends wxDialog
 		$staticbitmap = new wxStaticBitmap($this, ++$wxID, $bitmap);
 		$rowSizer->Add($staticbitmap);
 
-		$this->pagePanel = new wxPanel($this, ++$wxID, wxDefaultPosition, new wxSize(RUT_PAGEWIDTH, -1));
+		$this->pagePanel = new wxPanel($this, ++$wxID, wxDefaultPosition, wizardPanel::$size);
 		$rowSizer->Add($this->pagePanel, 0, wxGROW);
 		wizardPanel::$parent = $this->pagePanel;
 
