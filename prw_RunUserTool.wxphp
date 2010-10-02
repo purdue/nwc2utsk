@@ -534,7 +534,7 @@ class staffPanel extends wizardPanel
 
 		$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $listboxHeight),
 					new wxphp_ArrayString($grouplist));
-		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
+		$colSizer->Add($listbox, 1, wxGROW);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, array($this, "handleSelectGroup"));
 		$this->groupobject = $listbox;
@@ -545,7 +545,7 @@ class staffPanel extends wizardPanel
 
 			$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $listboxHeight),
 						new wxphp_ArrayString($group2list));
-			$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
+			$colSizer->Add($listbox, 1, wxGROW);
 
 			$this->Connect($this->cur_wxID(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, array($this, "handleSelectGroup2"));
 			$this->group2object = $listbox;
@@ -562,7 +562,7 @@ class staffPanel extends wizardPanel
 
 		$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $listboxHeight),
 					new wxphp_ArrayString($stafflist));
-		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
+		$colSizer->Add($listbox, 1, wxGROW);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, array($this, "handleSelectStaff"));
 		$this->staffobject = $listbox;
@@ -669,7 +669,7 @@ class toolPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID());
-		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
+		$colSizer->Add($listbox, 1, wxGROW);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectGroup"));
 		$this->groupobject = $listbox;
@@ -684,7 +684,7 @@ class toolPanel extends wizardPanel
 		$colSizer->Add($statictext);
 
 		$listbox = new wxListBox($this, $this->new_wxID());
-		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
+		$colSizer->Add($listbox, 1, wxGROW);
 
 		$this->Connect($this->cur_wxID(), wxEVT_COMMAND_LISTBOX_SELECTED, array($this, "handleSelectTool"));
 		$this->toolobject = $listbox;
@@ -840,7 +840,7 @@ class parmPanel extends wizardPanel
 		foreach ($m[1] as $parm) {
 			if (preg_match('/([^=]*)=(.*)$/', $parm, $m2)) {
 				$statictext = new wxStaticText($this, $this->new_wxID(), $m2[1]);
-				$col1Sizer->Add($statictext, 0, wxALIGN_LEFT|wxTOP|wxBOTTOM, 9);
+				$col1Sizer->Add($statictext, 0, wxTOP|wxBOTTOM, 9);
 
 				$selection = array_shift(self::$selections[$this->groupname][$this->toolname]);
 
@@ -883,7 +883,7 @@ class parmPanel extends wizardPanel
 
 				$parmObject->SetValue($selection);
 
-				$col2Sizer->Add($parmObject, 0, wxALIGN_LEFT|wxTOP|wxBOTTOM, 5);
+				$col2Sizer->Add($parmObject, 0, wxTOP|wxBOTTOM, 5);
 				$this->parmObjects[] = $parmObject;
 			}
 		}
@@ -1337,7 +1337,7 @@ class mainDialog extends wxDialog
 		$this->dialogSizer->Add($rowSizer, 0, wxGROW);
 
 		$this->statusText = new wxStaticText($this, ++$wxID, "");
-		$rowSizer->Add($this->statusText, 0, wxALIGN_LEFT|wxALL, 5);
+		$rowSizer->Add($this->statusText, 0, wxALL, 5);
 
 		$rowSizer->AddStretchSpacer();
 
@@ -1351,7 +1351,7 @@ class mainDialog extends wxDialog
 		wizardPanel::$nextButton = $this->nextButton;
 
 		$this->cancelButton = new wxButton($this, wxID_CANCEL);
-		$rowSizer->Add($this->cancelButton, 0, wxALIGN_RIGHT);
+		$rowSizer->Add($this->cancelButton);
 		$this->Connect(wxID_CANCEL, wxEVT_COMMAND_BUTTON_CLICKED, array($this, "DoCancel"));
 
 		//------------------------------------------------------------------------
