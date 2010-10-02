@@ -436,9 +436,9 @@ class wizardPanel extends wxScrolledWindow
 		$this->SetScrollRate(0, 10);
 	}
 
-	final protected function newRow () {
+	final protected function newRow ($prop = 0) {
 		$rowSizer = new wxBoxSizer(wxHORIZONTAL);
-		$this->panelSizer->Add($rowSizer, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 10);
+		$this->panelSizer->Add($rowSizer, $prop, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 10);
 		return $rowSizer;
 	}
 
@@ -1265,11 +1265,11 @@ class resultsPanel extends wizardPanel
 
 		//------------------------------------------------------------------------
 
-		$rowSizer = $this->newRow();
+		$rowSizer = $this->newRow(1);
 
-		$textDisp = new wxTextCtrl($this, $this->new_wxID(), "", wxDefaultPosition, new wxSize(-1, parent::$height - 85),
+		$textDisp = new wxTextCtrl($this, $this->new_wxID(), "", wxDefaultPosition, wxDefaultSize,
 							wxTE_READONLY|wxTE_MULTILINE|wxTE_DONTWRAP);
-		$rowSizer->Add($textDisp, 1);
+		$rowSizer->Add($textDisp, 1, wxGROW);
 
 		$this->textDisp = $textDisp;
 
