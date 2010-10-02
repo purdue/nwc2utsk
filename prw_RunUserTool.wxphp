@@ -203,7 +203,7 @@ class ParseSong {
 
 		$cliptext[] = NWC2_STARTCLIP."({$this->Version},Single)".PHP_EOL;
 
-		$cliptext[] = "|Fake|Instrument|Trans:$trans".PHP_EOL;
+		if ($trans) $cliptext[] = "|Fake|Instrument|Trans:$trans".PHP_EOL;
 		$cliptext[] = "|Context|Bar:$startingbar,AtStart".PHP_EOL;
 
 		$cliptext = array_merge($cliptext, $StaffData->BodyItems);
