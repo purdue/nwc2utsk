@@ -521,19 +521,10 @@ class staffPanel extends wizardPanel
 		//------------------------------------------------------------------------
 
 		$rowSizer = $this->newRow($group2list ? 1 : 0);
+		$listboxHeight = ($group2list ? 0 : -1);
 
 		//-------------------------------------------------
 		// groups listboxes
-
-		if ($group2list) {
-			$groupheight = 0;
-			$group2height = 0;
-			$staffheight = 0;
-		}
-		else {
-			$groupheight = -1;
-			$staffheight = -1;
-		}
 
 		$colSizer = new wxBoxSizer(wxVERTICAL);
 		$rowSizer->Add($colSizer, 3, wxGROW);
@@ -541,7 +532,7 @@ class staffPanel extends wizardPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Groups:");
 		$colSizer->Add($statictext);
 
-		$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $groupheight),
+		$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $listboxHeight),
 					new wxphp_ArrayString($grouplist));
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
 
@@ -552,7 +543,7 @@ class staffPanel extends wizardPanel
 			$statictext = new wxStaticText($this, $this->new_wxID(), "Built-in Groups:");
 			$colSizer->Add($statictext, 0, wxTOP, 8);
 
-			$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $group2height),
+			$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $listboxHeight),
 						new wxphp_ArrayString($group2list));
 			$colSizer->Add($listbox, 1, wxGROW|wxALIGN_LEFT);
 
@@ -569,7 +560,7 @@ class staffPanel extends wizardPanel
 		$statictext = new wxStaticText($this, $this->new_wxID(), "Staffs:");
 		$colSizer->Add($statictext);
 
-		$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $staffheight),
+		$listbox = new wxCheckListBox($this, $this->new_wxID(), wxDefaultPosition, new wxSize(-1, $listboxHeight),
 					new wxphp_ArrayString($stafflist));
 		$colSizer->Add($listbox, 1, wxGROW|wxALIGN_RIGHT);
 
