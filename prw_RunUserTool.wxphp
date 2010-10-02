@@ -2,7 +2,7 @@
 
 /**************************************************************************************************
 
-Run User Tool - Version 1.0
+Run User Tool - Version 1.1
 
 This is a special user tool in that it does not perform any action itself, but
 instead can perform multiple actions, by running other user tools.  It is used
@@ -789,7 +789,7 @@ class toolPanel extends wizardPanel
 class _wxChoice extends wxChoice
 {
 	function __construct ($parent, $id) {
-		parent::__construct($parent, $id);
+		parent::__construct($parent, $id, wxDefaultPosition, new wxSize(119, -1));
 	}
 
 	function GetValue () {
@@ -839,7 +839,7 @@ class parmPanel extends wizardPanel
 
 		foreach ($m[1] as $parm) {
 			if (preg_match('/([^=]*)=(.*)$/', $parm, $m2)) {
-				$statictext = new wxStaticText($this, $this->new_wxID(), $m2[1]);
+				$statictext = new wxStaticText($this, $this->new_wxID(), $m2[1], wxDefaultPosition, new wxSize(240, -1));
 				$col1Sizer->Add($statictext, 0, wxTOP|wxBOTTOM, 9);
 
 				$selection = array_shift(self::$selections[$this->groupname][$this->toolname]);
