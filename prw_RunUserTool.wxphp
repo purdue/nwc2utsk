@@ -399,7 +399,7 @@ class NWC2UserTools {
 
 /*************************************************************************************************/
 
-class wizardPanel extends wxPanel
+class wizardPanel extends wxScrolledWindow
 {
 	static $parent = null;
 	static $height = null;
@@ -409,7 +409,7 @@ class wizardPanel extends wxPanel
 	private $wxID = wxID_HIGHEST;
 
 	function __construct ($prompt) {
-		parent::__construct(self::$parent);
+		parent::__construct(self::$parent, -1, wxDefaultPosition, new wxSize(RUT_PAGEWIDTH, self::$height));
 
 		$this->updateNextButton();
 
@@ -432,6 +432,10 @@ class wizardPanel extends wxPanel
 		self::$nextButton->Enable($this->isNextValid());
 	}
 
+	final protected function enableScrolling () {
+		$this->SetScrollRate(0, 10);
+	}
+
 	final protected function newRow () {
 		$rowSizer = new wxBoxSizer(wxHORIZONTAL);
 		$this->panelSizer->Add($rowSizer, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 10);
@@ -439,7 +443,7 @@ class wizardPanel extends wxPanel
 	}
 
 	final protected function doFit () {
-		$this->panelSizer->Fit($this);
+		$this->panelSizer->FitInside($this);
 	}
 
 	final protected function new_wxID () {
@@ -826,6 +830,7 @@ class parmPanel extends wizardPanel
 
 	function __construct ($usertools, $usertool) {
 		parent::__construct(self::prompt);
+		$this->enableScrolling();
 
 		list($this->groupname, $this->toolname) = $usertool;
 		$this->command = $usertools[$this->groupname][$this->toolname]["command"];
@@ -927,6 +932,7 @@ class verifyPanel extends wizardPanel
 
 	function __construct ($SongData, $staffsubset, $fullcommand, $check) {
 		parent::__construct(self::prompt);
+		$this->enableScrolling();
 
 		$staffnames = array();
 
