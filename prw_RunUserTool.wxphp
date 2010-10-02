@@ -1562,8 +1562,12 @@ class mainDialog extends wxDialog
 						$GotArgUserToolAlready = true;
 
 						// run this user tool, but skip over it if no staffs selected
-						if ($this->staffsubset)
-							$nextstate = "getfullcommand";
+						if ($this->staffsubset) {
+							if ($this->usertool[1])
+								$nextstate = "getfullcommand";
+							else
+								$nextstate = "editusertool";
+						}
 						else
 							$nextstate = "getstaffsubset";
 					}
@@ -1748,6 +1752,10 @@ class mainDialog extends wxDialog
 		$toolname = strtok("");
 		if (isset($this->usertools[$groupname][$toolname]))
 			return array($groupname, $toolname);
+
+		// check third if $toolname was just a group name (no tool specified)
+		if (!$toolname && isset($this->usertools[$groupname]))
+				return array($groupname, null);
 
 		$this->fail("RUT: Unrecognized user tool: $groupname:$toolname");
 	}
