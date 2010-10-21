@@ -1183,7 +1183,7 @@ class resultsPanel extends wizardPanel
 
 		extract($execResults);
 
-		if (($exitcode == NWC2RC_SUCCESS) & !$stderr) {
+		if (($exitcode == NWC2RC_SUCCESS) && !$stderr) {
 			$td = new textdelta($stdin, $stdout);
 			$delta = $td->getreport();
 
@@ -1705,7 +1705,7 @@ class mainDialog extends wxDialog
 		$exitcode = $this->runCommand($this->fullcommand, $stdin, $stdout, $stderr, $compress);
 		$this->execresults = compact("stdin", "stdout", "stderr", "exitcode");
 
-		if (($exitcode == NWC2RC_SUCCESS) & !$stderr) {
+		if (($exitcode == NWC2RC_SUCCESS) && !$stderr) {
 			$this->SongData->PutClipText($staffindex, $stdout);
 			return false;
 		}
